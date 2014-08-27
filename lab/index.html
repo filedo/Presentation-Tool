@@ -11,7 +11,7 @@
 </head>
 <body>
 	<p>
-		<input type="file" id="files" multiple> <input type="button" id="tooladd" value="機能追加">
+		<input type="file" id="files" multiple> <input type="button" id="sort" value="スライドをソート"> <input type="button" id="tooladd" value="機能追加">
 	</p>
 	<div id="dragarea" draggble="true">
 		<input type="radio" name="q1" value="はい" draggable="true" class="item">
@@ -58,7 +58,8 @@
 	//スライドのファイルを選択すると実行される
 	//document.getElementById('files').addEventListener('change', slideFileSelect, false);と同様
 	$('#files').on('change',slideFileSelect);
-	$('#tooladd').click(sort);
+
+	$('#sort').click(sort);
 
 	</script>
 </body>
