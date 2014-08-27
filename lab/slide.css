@@ -1,0 +1,46 @@
+.step {
+	width: 960px;
+	height: 720px;
+	font-size: 32pt;
+	min-height: 300px;
+	display: block;
+	text-align: center;
+	border-radius: 20px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+	border: 1px solid rgba(0, 0, 0, 0);
+	/* color:#ED146F; */
+	color: yellow;
+	text-shadow: 0 2px 2px rgba(0, 0, 0, .1);
+	letter-spacing: -1px;
+	position:absolute;
+	top:50px;
+	left:10px;
+
+	/*パディングとボーターを幅と高さに含める*/
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing:    border-box;
+	-ms-box-sizing:     border-box;
+	-o-box-sizing:      border-box;
+	box-sizing:         border-box;
+
+	/*不透明にする*/
+	-webkit-transition: opacity 1s;
+	-moz-transition:    opacity 1s;
+	-ms-transition:     opacity 1s;
+	-o-transition:      opacity 1s;
+	transition:         opacity 1s;
+}
+
+#droparea {
+ 	width: 100%;
+ 	height: 600px;
+ 	border: 2px solid #999;
+}
+
+#droparea .item {
+ 	position: absolute;
+ }
+
+[draggable=true] {
+	-khtml-user-drag: element;
+}

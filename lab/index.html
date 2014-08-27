@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+	<title>参加型プレゼンツール</title>
+	<meta charset="utf-8">
+	<script src="lib/jquery-1.11.1.min.js"></script>
+	<script src="slideChange.js"></script>
+	<script src="slideFileSelect.js"></script>
+	<script src="sort.js"></script>
+	<link rel="stylesheet" type="text/css" href="slide.css">
+</head>
+<body>
+	<p>
+		<input type="file" id="files" multiple> <input type="button" id="tooladd" value="機能追加">
+	</p>
+	<div id="dragarea" draggble="true">
+		<input type="radio" name="q1" value="はい" draggable="true" class="item">
+		<input type="radio" name="q1" value="いいえ" draggable="true" class="item">
+		<input type="radio" name="q1" value="どちらでもない" draggable="true" class="item">
+	</div>
+	<output id="slide"></output>
+	<div id="droparea"></div>
+	<script>
+
+	window.addEventListener('load', function() {
+/* ドラッグ側の処理
+----------------------------------------------------------------- */
+	// ドラッグ要素を取得する
+	var els = document.querySelectorAll('#dragarea .item');
+	for (var i=0; i<els.length; i++) {
+		// 配列ごとにIDを設定
+		els[i].id = 'item'+i;
+		// dragstartイベントのリスナーを設定
+		els[i].addEventListener('dragstart', function(evt) {
+			evt.dataTransfer.setData('Text', evt.target.id);
+		}, true);
+	}
+/* ドロップ側の処理
+----------------------------------------------------------------- */
+	var droparea = document.getElementById('droparea');
+	// dragoverイベントのリスナーを設定
+	droparea.addEventListener('dragover', function(evt) {
+		evt.preventDefault();
+	}, true);
+
+	// dropイベントのリスナーを設定
+	droparea.addEventListener('drop', function(evt) {
+		var id = evt.dataTransfer.getData('Text');
+		var target = document.getElementById(id);
+		// dropイベントが発生したクライアント上のX、Y座標に、ドロップ要素を配置
+		target.style.left = evt.clientX-64+'px';
+		target.style.top = evt.clientY-64+'px';
+		droparea.appendChild(target);
+		evt.preventDefault();
+	}, true);
+}, true);
+
+	//スライドのファイルを選択すると実行される
+	//document.getElementById('files').addEventListener('change', slideFileSelect, false);と同様
+	$('#files').on('change',slideFileSelect);
+	$('#tooladd').click(sort);
+
+	</script>
+</body>
+</html>
