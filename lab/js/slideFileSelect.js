@@ -1,6 +1,8 @@
+// スライドの画像データを読み込む関数
 var arr = new Array();
 function slideFileSelect(evt) {
-	var files = evt.target.files;// 選択したファイルがFileObjectとしてfilesに代入される
+	// 選択したファイルがFileObjectとしてfilesに代入される
+	var files = evt.target.files;
 	// var output = [];
 	var reg=/(.*)(?:\.([^.]+$))/;
 
@@ -14,7 +16,7 @@ function slideFileSelect(evt) {
 				// 拡張子を除いたファイル名を取得　1.pngなら1
 				var filename = theFile.name.match(reg)[1];
 
-				//  img要素を作成し属性をセット
+				// img要素を作成し属性をセット
 				var img = $('<img>').attr({
 					class:"step",
 					src:e.target.result,

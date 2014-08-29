@@ -1,3 +1,4 @@
+// スライドを降順でソートする関数
 function sort(evt) {
 	var arr = new Array();
 

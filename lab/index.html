@@ -4,62 +4,150 @@
 	<title>参加型プレゼンツール</title>
 	<meta charset="utf-8">
 	<script src="lib/jquery-1.11.1.min.js"></script>
-	<script src="slideChange.js"></script>
-	<script src="slideFileSelect.js"></script>
-	<script src="sort.js"></script>
-	<link rel="stylesheet" type="text/css" href="slide.css">
+	<script src="lib/jquery-ui.min.js"></script>
+	<script src="js/slideChange.js"></script>
+	<script src="js/slideFileSelect.js"></script>
+	<script src="js/sort.js"></script>
+	<script src="js/questionTool.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/slide.css">
+	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
+	<style>
+	body{
+		font: 62.5% "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	select {
+		width: 200px;
+	}
+	#toolmenu {
+		width: 90px;
+	}
+	</style>
 </head>
 <body>
+	<!-- メニュー -->
 	<p>
-		<input type="file" id="files" multiple> <input type="button" id="sort" value="スライドをソート"> <input type="button" id="tooladd" value="機能追加">
+		<input type="file" id="files" multiple> <input type="button" id="sort" value="スライドをソート">
 	</p>
-	<div id="dragarea" draggble="true">
-		<input type="radio" name="q1" value="はい" draggable="true" class="item">
-		<input type="radio" name="q1" value="いいえ" draggable="true" class="item">
-		<input type="radio" name="q1" value="どちらでもない" draggable="true" class="item">
+	<div id="toolmenu">
+		<div>
+			<button id="addTool">機能追加</button>
+		</div>
+		<ul>
+			<li><a href="" id="questionTool">アンケート</a></li>
+			<li><a href="" onclick="addComment(); return false;">感想</a></li>
+		</ul>
 	</div>
-	<output id="slide"></output>
+	<!-- アンケート機能追加時のダイアログ -->
+	<div id="questionDialog" title="アンケート機能の追加">
+		<input id="spinner">
+		<p>選択肢の数を入力して下さい。</p>
+	</div>
+
+	<!-- スライド -->
+	<figure id="slide"></figure>
 	<div id="droparea"></div>
+
+	<!-- アンケート -->
+	<form style="margin-top: 1em;">
+		<div id="question"></div>
+	</form>
+	<!-- スクリプト -->
 	<script>
+	$('input[type="button"]').button();
+	$('input[type="file"]').button();
+	//$('input.only').button();
+	$( "#radioset" ).buttonset();
 
-	window.addEventListener('load', function() {
-/* ドラッグ側の処理
------------------------------------------------------------------ */
-	// ドラッグ要素を取得する
-	var els = document.querySelectorAll('#dragarea .item');
-	for (var i=0; i<els.length; i++) {
-		// 配列ごとにIDを設定
-		els[i].id = 'item'+i;
-		// dragstartイベントのリスナーを設定
-		els[i].addEventListener('dragstart', function(evt) {
-			evt.dataTransfer.setData('Text', evt.target.id);
-		}, true);
+	$( "#spinner" ).spinner({
+		max:10,
+		min:1
+	});
+	//機能追加ボタンを押した時にメニューをプルダウンする関数
+	$( function() {
+		$( "#addTool" )
+		.button( {
+			text: true,
+			icons: {
+				primary: "ui-icon-triangle-1-s"
+			}
+		} )
+		.click( function() {
+			var menu = $( this ).parent().next().show().position( {
+				my: "left top",
+				at: "left bottom",
+				of: this
+			} );
+			$( document ).one( "click", function() {
+				menu.hide();
+			} );
+			return false;
+		} )
+		.parent()
+		.buttonset()
+		.next()
+		.hide()
+		.menu();
+	} );
+
+	var count=1;
+	// ダイアログ
+	$( "#questionDialog" ).dialog({
+		autoOpen: false,
+		width: 200,
+		modal: true,
+		buttons: [
+		{
+			text: "Ok",
+			click: function() {
+			// 追加したラジオボタンの固まりごとにドラッグ機能を付与
+			var div = $('<div>').attr({id:"question-"+count}).draggable();
+			$('#question').append(div);
+			// 選択肢の数分だけボタンを作成
+			for(var i = 0; i < $('#spinner').spinner("value"); i++){
+				$('#question-'+count).append(jQuery("<input type='radio'/>").attr({
+					id:"radio"+(i+1),
+					name:"radio",
+					value:i+1
+				}).html("あ"));
+			}
+			count++;
+			$( this ).dialog( "close" );
+		}
+	},
+	{
+		text: "Cancel",
+		click: function() {
+			$( this ).dialog( "close" );
+		}
 	}
-/* ドロップ側の処理
------------------------------------------------------------------ */
-	var droparea = document.getElementById('droparea');
-	// dragoverイベントのリスナーを設定
-	droparea.addEventListener('dragover', function(evt) {
-		evt.preventDefault();
-	}, true);
+	]
+});
 
-	// dropイベントのリスナーを設定
-	droparea.addEventListener('drop', function(evt) {
-		var id = evt.dataTransfer.getData('Text');
-		var target = document.getElementById(id);
-		// dropイベントが発生したクライアント上のX、Y座標に、ドロップ要素を配置
-		target.style.left = evt.clientX-64+'px';
-		target.style.top = evt.clientY-64+'px';
-		droparea.appendChild(target);
-		evt.preventDefault();
-	}, true);
-}, true);
-
-	//スライドのファイルを選択すると実行される
-	//document.getElementById('files').addEventListener('change', slideFileSelect, false);と同様
+	// スライドのファイルを選択すると実行される
+	// document.getElementById('files').addEventListener('change', slideFileSelect, false);と同様
 	$('#files').on('change',slideFileSelect);
-
 	$('#sort').click(sort);
+	$('#questionTool').click(questionTool);
 
 	</script>
 </body>
