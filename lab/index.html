@@ -41,6 +41,10 @@
 	#toolmenu {
 		width: 90px;
 	}
+	#question {
+		font: 200% "Trebuchet MS", sans-serif;
+		letter-spacing: 1em;
+	}
 	</style>
 </head>
 <body>
@@ -79,7 +83,7 @@
 	$( "#radioset" ).buttonset();
 
 	$( "#spinner" ).spinner({
-		max:10,
+		max:9,
 		min:1
 	});
 	//機能追加ボタンを押した時にメニューをプルダウンする関数
@@ -124,11 +128,8 @@
 			$('#question').append(div);
 			// 選択肢の数分だけボタンを作成
 			for(var i = 0; i < $('#spinner').spinner("value"); i++){
-				$('#question-'+count).append(jQuery("<input type='radio'/>").attr({
-					id:"radio"+(i+1),
-					name:"radio",
-					value:i+1
-				}).html("あ"));
+				$('#question-'+count).append(jQuery("<input type='radio' name='radio"+count+"' id='radio"+count+"-"+(i+1)+"'/><label for='radio"+count+"-"+(i+1)+"'>"));
+				$('#radio'+count+"-"+(i+1)).next().html(i+1);
 			}
 			count++;
 			$( this ).dialog( "close" );
