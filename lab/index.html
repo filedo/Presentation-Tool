@@ -9,6 +9,7 @@
 	<script src="js/slideFileSelect.js"></script>
 	<script src="js/sort.js"></script>
 	<script src="js/questionTool.js"></script>
+	<script src="js/commentTool.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/slide.css">
 	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
 	<style>
@@ -41,9 +42,15 @@
 	#toolmenu {
 		width: 90px;
 	}
-	#question {
+	#questions {
 		font: 200% "Trebuchet MS", sans-serif;
-		letter-spacing: 1em;
+		letter-spacing: 2em;
+	}
+	#comments {
+		font: 150% "Trebuchet MS", sans-serif;
+	}
+	#questionDialog {
+		font: 150% "Trebuchet MS", sans-serif;
 	}
 	</style>
 </head>
@@ -58,7 +65,7 @@
 		</div>
 		<ul>
 			<li><a href="" id="questionTool">アンケート</a></li>
-			<li><a href="" onclick="addComment(); return false;">感想</a></li>
+			<li><a href="" id="commentTool">感想</a></li>
 		</ul>
 	</div>
 	<!-- アンケート機能追加時のダイアログ -->
@@ -73,23 +80,28 @@
 
 	<!-- アンケート -->
 	<form style="margin-top: 1em;">
-		<div id="question"></div>
+		<div id="questions"></div>
 	</form>
+
+	<!-- 感想 -->
+	<form>
+		<div id="comments"></div>
+	</form>
+
 	<!-- スクリプト -->
 	<script>
 	$('input[type="button"]').button();
 	$('input[type="file"]').button();
 	//$('input.only').button();
-	$( "#radioset" ).buttonset();
 
 	$( "#spinner" ).spinner({
 		max:9,
 		min:1
 	});
+
 	//機能追加ボタンを押した時にメニューをプルダウンする関数
 	$( function() {
-		$( "#addTool" )
-		.button( {
+		$( "#addTool" ).button( {
 			text: true,
 			icons: {
 				primary: "ui-icon-triangle-1-s"
@@ -105,50 +117,44 @@
 				menu.hide();
 			} );
 			return false;
-		} )
-		.parent()
-		.buttonset()
-		.next()
-		.hide()
-		.menu();
+		} ).parent().buttonset().next().hide().menu();
 	} );
 
-	var count=1;
+	// アンケート機能の総作成数
+	// 最低でも1つ作成されるので初期値は1
+	var qToolNum = 1;
 	// ダイアログ
 	$( "#questionDialog" ).dialog({
 		autoOpen: false,
-		width: 200,
+		width: 300,
 		modal: true,
 		buttons: [
 		{
 			text: "Ok",
 			click: function() {
-			// 追加したラジオボタンの固まりごとにドラッグ機能を付与
-			var div = $('<div>').attr({id:"question-"+count}).draggable();
-			$('#question').append(div);
-			// 選択肢の数分だけボタンを作成
-			for(var i = 0; i < $('#spinner').spinner("value"); i++){
-				$('#question-'+count).append(jQuery("<input type='radio' name='radio"+count+"' id='radio"+count+"-"+(i+1)+"'/><label for='radio"+count+"-"+(i+1)+"'>"));
-				$('#radio'+count+"-"+(i+1)).next().html(i+1);
+				questionTool();
+				$( this ).dialog( "close" );
 			}
-			count++;
-			$( this ).dialog( "close" );
+		},
+		{
+			text: "Cancel",
+			click: function() {
+				$( this ).dialog( "close" );
+			}
 		}
-	},
-	{
-		text: "Cancel",
-		click: function() {
-			$( this ).dialog( "close" );
-		}
-	}
-	]
-});
+		]
+	});
 
 	// スライドのファイルを選択すると実行される
 	// document.getElementById('files').addEventListener('change', slideFileSelect, false);と同様
 	$('#files').on('change',slideFileSelect);
 	$('#sort').click(sort);
-	$('#questionTool').click(questionTool);
+	// 機能追加のメニューでアンケートボタンを押した時、ダイアログを表示する
+	$('#questionTool').click(function(evt){
+		$('#questionDialog').dialog("open");
+		evt.preventDefault();
+	});
+	$('#commentTool').click(commentTool);
 
 	</script>
 </body>
