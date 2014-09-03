@@ -5,17 +5,19 @@
 	<meta charset="utf-8">
 	<script src="lib/jquery-1.11.1.min.js"></script>
 	<script src="lib/jquery-ui.min.js"></script>
+	<script src="lib/jMenu.jquery.min.js"></script>
 	<script src="js/slideChange.js"></script>
-	<script src="js/slideFileSelect.js"></script>
-	<script src="js/sort.js"></script>
+	<script src="js/fileSelect.js"></script>
+	<script src="js/sortTool.js"></script>
 	<script src="js/questionTool.js"></script>
 	<script src="js/commentTool.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/slide.css">
 	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
+	<link rel="stylesheet" type="text/css" href="css/jmenu.css">
 	<style>
 	body{
 		font: 62.5% "Trebuchet MS", sans-serif;
-		margin: 50px;
+		/*margin: 50px;*/
 	}
 	#icons {
 		margin: 0;
@@ -39,9 +41,7 @@
 	select {
 		width: 200px;
 	}
-	#toolmenu {
-		width: 90px;
-	}
+
 	#questions {
 		font: 200% "Trebuchet MS", sans-serif;
 		letter-spacing: 2em;
@@ -55,19 +55,24 @@
 	</style>
 </head>
 <body>
-	<!-- メニュー -->
-	<p>
-		<input type="file" id="files" multiple> <input type="button" id="sort" value="スライドをソート">
-	</p>
-	<div id="toolmenu">
-		<div>
-			<button id="addTool">機能追加</button>
-		</div>
-		<ul>
-			<li><a href="" id="questionTool">アンケート</a></li>
-			<li><a href="" id="commentTool">感想</a></li>
-		</ul>
-	</div>
+	<!-- メニュー（jMenuを採用） -->
+	<ul id="jMenu">
+		<li>
+			<!-- fileタイプは特殊なのでaタグで機能させようとするとこうなる -->
+			<input type="file" id="files" style="display:none;" multiple>
+			<a href="Javascript:document.getElementById('files').click();">ファイル選択</a>
+		</li>
+		<li>
+			<a href="" id="sortTool">スライドをソート</a>
+		</li>
+		<li>
+			<a href="" id="addTool">機能追加</a>
+			<ul>
+				<li><a href="" id="questionTool">アンケート</a></li>
+				<li><a href="" id="commentTool">感想</a></li>
+			</ul>
+		</li>
+	</ul>
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
 		<input id="spinner">
@@ -76,7 +81,8 @@
 
 	<!-- スライド -->
 	<figure id="slide"></figure>
-	<div id="droparea"></div>
+
+	<!-- <div id="droparea"></div> -->
 
 	<!-- アンケート -->
 	<form style="margin-top: 1em;">
@@ -90,41 +96,35 @@
 
 	<!-- スクリプト -->
 	<script>
-	$('input[type="button"]').button();
-	$('input[type="file"]').button();
-	//$('input.only').button();
+	$(document).ready(function() {
+		$('#jMenu').jMenu({
+			openClick : false,
+			ulWidth :'150',
+			TimeBeforeOpening : 100,
+			TimeBeforeClosing : 11,
+			animatedText : false,
+			paddingLeft: 1,
+			effects : {
+				effectSpeedOpen : 150,
+				effectSpeedClose : 150,
+				effectTypeOpen : 'slide',
+				effectTypeClose : 'slide',
+				effectOpen : 'swing',
+				effectClose : 'swing'
+			}
+		});
+	});
 
-	$( "#spinner" ).spinner({
+	$( '#spinner' ).spinner({
 		max:9,
 		min:1
 	});
-
-	//機能追加ボタンを押した時にメニューをプルダウンする関数
-	$( function() {
-		$( "#addTool" ).button( {
-			text: true,
-			icons: {
-				primary: "ui-icon-triangle-1-s"
-			}
-		} )
-		.click( function() {
-			var menu = $( this ).parent().next().show().position( {
-				my: "left top",
-				at: "left bottom",
-				of: this
-			} );
-			$( document ).one( "click", function() {
-				menu.hide();
-			} );
-			return false;
-		} ).parent().buttonset().next().hide().menu();
-	} );
 
 	// アンケート機能の総作成数
 	// 最低でも1つ作成されるので初期値は1
 	var qToolNum = 1;
 	// ダイアログ
-	$( "#questionDialog" ).dialog({
+	$( '#questionDialog' ).dialog({
 		autoOpen: false,
 		width: 300,
 		modal: true,
@@ -146,16 +146,21 @@
 	});
 
 	// スライドのファイルを選択すると実行される
-	// document.getElementById('files').addEventListener('change', slideFileSelect, false);と同様
-	$('#files').on('change',slideFileSelect);
-	$('#sort').click(sort);
+	// document.getElementById('files').addEventListener('change', fileSelect, false);と同様
+	$('#files').on('change',fileSelect);
+
+	// evt.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
+	$('#addTool').click(function(evt){evt.preventDefault();});
+
+	$('#sortTool').click(sortTool);
+
 	// 機能追加のメニューでアンケートボタンを押した時、ダイアログを表示する
 	$('#questionTool').click(function(evt){
 		$('#questionDialog').dialog("open");
 		evt.preventDefault();
 	});
-	$('#commentTool').click(commentTool);
 
+	$('#commentTool').click(commentTool);
 	</script>
 </body>
 </html>
