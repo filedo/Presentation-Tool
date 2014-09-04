@@ -1,13 +1,25 @@
 var qToolNum = 1;
 function questionTool (evt) {
-	// 追加したラジオボタンの固まりごとにドラッグ機能を付与
+
+	// 1つのアンケートフォームの固まりとしてdivタグを作成する
+	// 初期状態としてドラッグ不可能にしている
+	// ドラッグ終了時には灰色の枠線を消し、再びドラッグ不可能な状態に戻す
+	// 選択されると赤色の枠線が表示されドラッグ可能になる
 	var div = $('<div>').attr({id:"question-"+qToolNum}).draggable({
 		stop:function(e,ui){
 			div.css({
 				border:''
 			}).draggable('disable');
+			selectedId = [this.id,false];
 		}
-	}).draggable('disable').css({
+	}).draggable('disable').selectable({
+		selected:function(e,ui){
+			$(this).css({
+				border:'solid 1px red'
+			}).draggable('enable');
+			selectedId = [this.id,true];
+		}
+	}).css({
 		width:64*($('#spinner').spinner("value")+1)+'px'
 	});
 
@@ -21,15 +33,6 @@ function questionTool (evt) {
 	$('#question-'+qToolNum).append(jQuery("<br>"));
 	$('#question-'+qToolNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}));
 
-	div.each(function(){
-		$(this).selectable({
-			selected:function(e,ui){
-				$(this).css({
-					border:'solid 1px red'
-				}).draggable('enable');
-			}
-		});
-	});
 	qToolNum++;
 }
 

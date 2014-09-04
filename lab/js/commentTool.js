@@ -1,18 +1,26 @@
 // 感想機能の総作成数 一つフォームが作成されるたびに加算される
 var cToolNum = 1;
 function commentTool(evt) {
-	var selected;
 
 	// 1つの感想フォームの固まりとしてdivタグを作成する
 	// 初期状態としてドラッグ不可能にしている
 	// ドラッグ終了時には灰色の枠線を消し、再びドラッグ不可能な状態に戻す
+	// 選択されると赤色の枠線が表示されドラッグ可能になる
 	var div = $('<div>').attr({id:"opinion-"+cToolNum}).draggable({
 		stop:function(e,ui){
-			div.css({
+			$(this).css({
 				border:''
 			}).draggable('disable');
+			selectedId = [this.id,false];
 		}
-	}).draggable('disable').css({width:'325px'});
+	}).draggable('disable').selectable({
+		selected:function(e,ui){
+			$(this).css({
+				border:'solid 1px red'
+			}).draggable('enable');
+			selectedId = [this.id,true];
+		}
+	}).css({width:'325px'});
 
 	$('#comments').append(div);
 	for(var i = 0;i < 2; i++){
@@ -36,30 +44,7 @@ function commentTool(evt) {
 	$('#opinion-'+cToolNum).append(jQuery("<br>"));
 	$('#opinion-'+cToolNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}));
 
-	// それぞれのdiv要素を選択可能にする
-	// 選択されると枠線が灰色に変化し、一時的にドラッグ可能になる
-	div.each(function() {
-		$(this).selectable({
-			selected:function(e,ui){
-				$(this).css({
-					border:'solid 1px red'
-				}).draggable('enable');
-			}
-		});
-			//unselected: function(){
-			//	console.log("い");
-			//	$(this).draggable('disable');
-			//}
-
-		//$(this).droppable({
-			//drop: function(e, ui) {
-			//	console.log("う");
-			//	$(this).draggable('disable');
-			//}
-		//});
-});
 	cToolNum++;
-
 	evt.preventDefault();
 }
 
