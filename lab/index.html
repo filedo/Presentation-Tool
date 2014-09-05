@@ -9,8 +9,8 @@
 	<script src="js/keyController.js"></script>
 	<script src="js/fileSelect.js"></script>
 	<script src="js/sortTool.js"></script>
-	<script src="js/questionTool.js"></script>
-	<script src="js/commentTool.js"></script>
+	<script src="js/questionForm.js"></script>
+	<script src="js/commentForm.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/slide.css">
 	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
 	<link rel="stylesheet" type="text/css" href="css/jmenu.css">
@@ -43,7 +43,7 @@
 	}
 
 	#questions {
-		font: 200% "Trebuchet MS", sans-serif;
+		font: 150% "Trebuchet MS", sans-serif;
 		letter-spacing: 2em;
 	}
 	#comments {
@@ -68,12 +68,12 @@
 		<li>
 			<a href="" id="addTool">機能追加</a>
 			<ul>
-				<li><a href="" id="questionTool">アンケート</a></li>
-				<li><a href="" id="commentTool">感想</a></li>
+				<li><a href="" id="questionForm">アンケート</a></li>
+				<li><a href="" id="commentForm">感想</a></li>
 			</ul>
 		</li>
 	</ul>
-	<div id="removeTool"></div>
+	<div id="set"></div>
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
 		<input id="spinner">
@@ -86,7 +86,7 @@
 	<!-- <div id="droparea"></div> -->
 
 	<!-- アンケート -->
-	<form style="margin-top: 1em;">
+	<form>
 		<div id="questions"></div>
 	</form>
 
@@ -123,7 +123,7 @@
 
 	// アンケート機能の総作成数
 	// 最低でも1つ作成されるので初期値は1
-	var qToolNum = 1;
+	//var qFormNum = 1;
 	// ダイアログ
 	$( '#questionDialog' ).dialog({
 		autoOpen: false,
@@ -133,7 +133,7 @@
 		{
 			text: "Ok",
 			click: function() {
-				questionTool();
+				questionForm();
 				$( this ).dialog( "close" );
 			}
 		},
@@ -156,12 +156,12 @@
 	$('#sortTool').click(sortTool);
 
 	// 機能追加のメニューでアンケートボタンを押した時、ダイアログを表示する
-	$('#questionTool').click(function(evt){
+	$('#questionForm').click(function(evt){
 		$('#questionDialog').dialog("open");
 		evt.preventDefault();
 	});
 
-	$('#commentTool').click(commentTool);
+	$('#commentForm').click(commentForm);
 
 	</script>
 </body>

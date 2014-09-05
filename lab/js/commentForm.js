@@ -1,12 +1,12 @@
 // 感想機能の総作成数 一つフォームが作成されるたびに加算される
-var cToolNum = 1;
-function commentTool(evt) {
+var cFormNum = 1;
+function commentForm(evt) {
 
 	// 1つの感想フォームの固まりとしてdivタグを作成する
 	// 初期状態としてドラッグ不可能にしている
 	// ドラッグ終了時には灰色の枠線を消し、再びドラッグ不可能な状態に戻す
 	// 選択されると赤色の枠線が表示されドラッグ可能になる
-	var div = $('<div>').attr({id:"opinion-"+cToolNum}).draggable({
+	var div = $('<div>').attr({id:"opinion-"+cFormNum}).draggable({
 		stop:function(e,ui){
 			$(this).css({
 				border:''
@@ -20,31 +20,31 @@ function commentTool(evt) {
 			}).draggable('enable');
 			selectedId = [this.id,true];
 		}
-	}).css({width:'325px'});
+	}).css({width:'325px','text-align':'center'});
 
 	$('#comments').append(div);
 	for(var i = 0;i < 2; i++){
-		$('#opinion-'+cToolNum).append(jQuery("<input type='radio' name='opinion"+cToolNum+"' id='opinion"+cToolNum+"-"+(i+1)+"' value='"+(i+1)+"'/><label for='opinion"+cToolNum+"-"+(i+1)+"'>"));
+		$('#opinion-'+cFormNum).append(jQuery("<input type='radio' name='opinion"+cFormNum+"' id='opinion"+cFormNum+"-"+(i+1)+"' value='"+(i+1)+"'/><label for='opinion"+cFormNum+"-"+(i+1)+"'>"));
 	}
-	$('#opinion'+cToolNum+"-1").next().html("：分かりやすかった");
-	$('#opinion'+cToolNum+"-2").next().html("：分かりにくかった");
+	$('#opinion'+cFormNum+"-1").next().html("：分かりやすかった");
+	$('#opinion'+cFormNum+"-2").next().html("：分かりにくかった");
 
-	$('#opinion-'+cToolNum).append(jQuery("<br>"));
+	$('#opinion-'+cFormNum).append(jQuery("<br>"));
 
 	var textarea = $('<textarea>').attr({
-		id:"comment"+cToolNum,
-		name:"comment"+cToolNum,
+		id:"comment"+cFormNum,
+		name:"comment"+cFormNum,
 		cols:"42.5",
 		rows:"6",
 		maxlength:"500",
 		placeholder:"ご意見・ご感想をご記入ください"
 	}).css({resize:'vertical'});
 
-	$('#opinion-'+cToolNum).append(textarea);
-	$('#opinion-'+cToolNum).append(jQuery("<br>"));
-	$('#opinion-'+cToolNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}));
+	$('#opinion-'+cFormNum).append(textarea);
+	$('#opinion-'+cFormNum).append(jQuery("<br>"));
+	$('#opinion-'+cFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}));
 
-	cToolNum++;
+	cFormNum++;
 	evt.preventDefault();
 }
 
