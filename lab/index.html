@@ -66,6 +66,9 @@
 			<a href="" id="sortTool">スライドをソート</a>
 		</li>
 		<li>
+			<a href="" id="removeSlide">スライドを削除</a>
+		</li>
+		<li>
 			<a href="" id="addTool">機能追加</a>
 			<ul>
 				<li><a href="" id="questionForm">アンケート</a></li>
@@ -162,6 +165,11 @@
 	});
 
 	$('#commentForm').click(commentForm);
+
+	$('#removeSlide').click(function(evt){
+		$('#slide').empty();
+		evt.preventDefault();
+	});
 
 	</script>
 </body>

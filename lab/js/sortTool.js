@@ -23,7 +23,7 @@ function sortTool(evt) {
 	});
 	// 降順されたimg要素をすべてslideに追加する
 	for(i = 0; i < arr.length; i++){
-		$("#slide").append(arr[i].value);
+		$('#slide').append(arr[i].value);
 	}
 
 	// このメソッドが呼ばれると、通常実行されるアクションがキャンセルされる

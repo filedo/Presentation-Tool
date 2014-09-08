@@ -25,10 +25,10 @@ $(function(){
 
 			// →を押したら最後の要素を#slideの先頭に追加（移動）させる
 			case 39:
-			$('#slide').prepend($("#slide").find(":last"));
+			$('#slide').prepend($('#slide').find(":last"));
 			// 3.スライドを移動した時、現在のスライドidを取得し、
 			// 配列を全て検索してスライドidと関連づけられているフォームidが存在するか調べる
-			var key = $("#slide").find(":last").attr("zIndex");
+			var key = $('#slide').find(":last").attr("zIndex");
 			for (var keyString in slideIdAndFormId) {
 				// 4.存在すればそのフォームを表示させる
 				// 5.それ以外のフォームは非表示にする
@@ -42,9 +42,9 @@ $(function(){
 
 			// ←を押したら最初の要素を#slideの末尾に追加（移動）させる
 			case 37:
-			$('#slide').append($("#slide").find(":first"));
+			$('#slide').append($('#slide').find(":first"));
 			// 以下case39と同様
-			var key = $("#slide").find(":last").attr("zIndex");
+			var key = $('#slide').find(":last").attr("zIndex");
 			for (var keyString in slideIdAndFormId) {
 				if(key == keyString){
 					$("#"+slideIdAndFormId[keyString]).css("visibility","visible");
@@ -67,9 +67,13 @@ $(function(){
 			case 13:
 			if(selectedId[1]==true){
 				// 2.フォームをセットした時、キーを現在のスライドid、値をフォームidとして関連づける
-				var key = $("#slide").find(":last").attr("zIndex");
+				var key = $('#slide').find(":last").attr("zIndex");
 				var value = $('#'+selectedId[0]).attr("id");
 				slideIdAndFormId[key] = value;
+				$('#'+selectedId[0]).css({
+					border:''
+				}).draggable().draggable('disable');
+
 				// 要素が削除されたのでselectedIdを初期化
 				selectedId = ["id",false];
 				alert("選択中のフォームを現在のスライドにセットしました。")
