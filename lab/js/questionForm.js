@@ -43,6 +43,9 @@ function questionForm (evt) {
 			// テキストエリアの入力内容を取得
 			console.log($("input[name="+name+"]:checked").val());
 			questionList.push($("input[name="+name+"]:checked").val());
+			// 送信後ラジオボタンの選択を無効にし、送信ボタンを非表示にする
+			$("input[name="+name+"]").attr('disabled', 'disabled');
+			$(this).css('visibility', 'hidden');
 		}
 	}));
 

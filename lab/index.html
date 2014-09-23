@@ -58,7 +58,7 @@
 	<!-- メニュー（jMenuを採用） -->
 	<ul id="jMenu">
 		<li>
-			<!-- fileタイプは特殊なのでaタグで機能させようとするとこうなる -->
+			<!-- fileタイプは特殊なのでaタグでイベントを発生させるとこうなる -->
 			<input type="file" id="files" style="display:none;" multiple>
 			<a href="Javascript:document.getElementById('files').click();">ファイル選択</a>
 		</li>
@@ -79,7 +79,7 @@
 	<div id="set"></div>
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
-		<input id="spinner">
+		<input id="spinner" value="1">
 		<p>選択肢の数を入力して下さい。</p>
 	</div>
 

@@ -52,13 +52,17 @@ function commentForm(evt) {
 	$('#opinion-'+cFormNum).append(textarea);
 	$('#opinion-'+cFormNum).append(jQuery("<br>"));
 	$('#opinion-'+cFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}).click(function(){
-		if (!$("input[name="+name+"]:checked").val()) {
-			alert("未選択です。");
+		if (!$("input[name="+name+"]:checked").val()||textarea.val()=="") {
+			alert("未選択または未入力です。");
 		} else {
 			// テキストエリアの入力内容を取得
 			console.log($("input[name="+name+"]:checked").val(),textarea.val());
 			var tmp = [$("input[name="+name+"]:checked").val(),textarea.val()];
 			commentList.push(tmp);
+			// 送信後ラジオボタンの選択とテキストエリアの入力を無効にし、送信ボタンを非表示にする
+			$("input[name="+name+"]").attr('disabled', 'disabled');
+			textarea.attr('disabled', 'disabled');
+			$(this).css('visibility', 'hidden');
 		}
 	}));
 
