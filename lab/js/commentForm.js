@@ -23,9 +23,12 @@ function commentForm(evt) {
 	}).css({width:'325px','text-align':'center'});
 
 	$('#comments').append(div);
+
 	for(var i = 0;i < 2; i++){
 		$('#opinion-'+cFormNum).append(jQuery("<input type='radio' name='opinion"+cFormNum+"' id='opinion"+cFormNum+"-"+(i+1)+"' value='"+(i+1)+"'/><label for='opinion"+cFormNum+"-"+(i+1)+"'>"));
 	}
+
+
 	$('#opinion'+cFormNum+"-1").next().html("：分かりやすかった");
 	$('#opinion'+cFormNum+"-2").next().html("：分かりにくかった");
 
@@ -40,9 +43,20 @@ function commentForm(evt) {
 		placeholder:"ご意見・ご感想をご記入ください"
 	}).css({resize:'vertical'});
 
+	// どのボタンが選択されたかチェックするためにボタンのnameを記録
+	var name = 'opinion'+cFormNum;
+
 	$('#opinion-'+cFormNum).append(textarea);
 	$('#opinion-'+cFormNum).append(jQuery("<br>"));
-	$('#opinion-'+cFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}));
+	$('#opinion-'+cFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}).click(function(){
+		//console.log(name);
+		if (!$("input[name="+name+"]:checked").val()) {
+			alert("未選択です。");
+		} else {
+			// テキストエリアの入力内容を取得
+			console.log($("input[name="+name+"]:checked").val(),textarea.val());
+		}
+	}));
 
 	cFormNum++;
 	evt.preventDefault();

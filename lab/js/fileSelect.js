@@ -3,6 +3,7 @@ var arr = new Array();
 function fileSelect(evt) {
 	// 選択したファイルがFileObjectとしてfilesに代入される
 	var files = evt.target.files;
+	//console.log(files);
 	// var output = [];
 	var reg=/(.*)(?:\.([^.]+$))/;
 

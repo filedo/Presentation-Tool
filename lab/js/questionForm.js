@@ -22,14 +22,26 @@ function questionForm (evt) {
 	}).css({width:64*($('#spinner').spinner("value")+1)+'px','text-align':'center'});
 
 	$('#questions').append(div);
+
 	// 選択肢の数分だけボタンを作成
 	for(var i = 0; i < $('#spinner').spinner("value"); i++){
 		// nameはボタンの固まりごと、idとforはボタン一つ一つに値を割り当てている
 		$('#question-'+qFormNum).append(jQuery("<input type='radio' name='question"+qFormNum+"' id='question"+qFormNum+"-"+(i+1)+"' value='"+(i+1)+"'/><label for='question"+qFormNum+"-"+(i+1)+"'>"));
 		$('#question'+qFormNum+"-"+(i+1)).next().html(i+1);
 	}
+
+	// どのボタンが選択されたかチェックするためにボタンのnameを記録
+	var name = 'question'+qFormNum;
+
 	$('#question-'+qFormNum).append(jQuery("<br><br>"));
-	$('#question-'+qFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}));
+	$('#question-'+qFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}).click(function(){
+		if (!$("input[name="+name+"]:checked").val()) {
+			alert("未選択です。");
+		} else {
+			// テキストエリアの入力内容を取得
+			console.log($("input[name="+name+"]:checked").val());
+		}
+	}));
 
 	qFormNum++;
 }
