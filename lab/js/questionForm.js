@@ -1,4 +1,6 @@
 var qFormNum = 1;
+// アンケートの選択内容を格納するリスト
+var questionList = [];
 function questionForm (evt) {
 
 	// 1つのアンケートフォームの固まりとしてdivタグを作成する
@@ -40,6 +42,7 @@ function questionForm (evt) {
 		} else {
 			// テキストエリアの入力内容を取得
 			console.log($("input[name="+name+"]:checked").val());
+			questionList.push($("input[name="+name+"]:checked").val());
 		}
 	}));
 

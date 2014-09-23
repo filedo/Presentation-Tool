@@ -2,6 +2,13 @@
 function sortTool(evt) {
 	var arr = new Array();
 
+	for (var i = 0, len = questionList.length; i < len; i++) {
+		console.log(questionList[i]);
+	}
+	for (var i = 0, len = commentList.length; i < len; i++) {
+		console.log(commentList[i]);
+	}
+
 	// img要素をすべて取り出しarrにセットする
 	$('#slide img').each(function(i){
 		arr[i] = new Object();

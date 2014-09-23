@@ -1,5 +1,8 @@
 // 感想機能の総作成数 一つフォームが作成されるたびに加算される
 var cFormNum = 1;
+// アンケートの選択内容とコメントの入力内容を格納するリスト
+// 例:[ ["1",あいうえお] , ["2",かきくけこ] , ...]
+var commentList = [];
 function commentForm(evt) {
 
 	// 1つの感想フォームの固まりとしてdivタグを作成する
@@ -49,12 +52,13 @@ function commentForm(evt) {
 	$('#opinion-'+cFormNum).append(textarea);
 	$('#opinion-'+cFormNum).append(jQuery("<br>"));
 	$('#opinion-'+cFormNum).append(jQuery("<input type='button'/>").attr({value: "送信する"}).click(function(){
-		//console.log(name);
 		if (!$("input[name="+name+"]:checked").val()) {
 			alert("未選択です。");
 		} else {
 			// テキストエリアの入力内容を取得
 			console.log($("input[name="+name+"]:checked").val(),textarea.val());
+			var tmp = [$("input[name="+name+"]:checked").val(),textarea.val()];
+			commentList.push(tmp);
 		}
 	}));
 
