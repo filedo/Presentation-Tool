@@ -1,3 +1,27 @@
+// 再読み込み時にページの情報を保存する変数（JSON形式）
+// 配列の中に連想配列として保存 [{}]
+// 例
+// jsonObj = {
+//	slide:[{src:画像のURL,zIndex:1}],
+//	questions:[{
+//			   qfn:1,
+//			   spinner:選択肢の数,
+//			   question:{top:ラジオボタンの座標,left:ラジオボタンの座標},
+//			   submit:{top:送信ボタンの座標,left:送信ボタンの座標}
+//			   }],
+//	comments:[{
+//			  cfn:1,
+//			  opinion:{top:ラジオボタンの座標,left:ラジオボタンの座標},
+//			  comment:{top:テキストエリアの座標,left:テキストエリアの座標},
+//			  submit:{top:送信ボタンの座標,left:送信ボタンの座標}
+//			  }]
+// }
+var jsonObj = {
+	slide:[],
+	questions:[],
+	comments:[],
+};
+
 function fileSelect(evt) {
 	// スライドの画像データを読み込む関数
 	var arr = new Array();
@@ -48,6 +72,15 @@ function fileSelect(evt) {
 					for(i = 0; i < arr.length; i++){
 						$('#slide').append(arr[i].value);
 					}
+					// 再読み込み時に復元のため、スライドの情報を記憶しておく(JSON形式)
+					// 例 {"slide":{"img1":{"src":画像のURL,"zIndex":"1"},...,{"img14":{"src":画像のURL,"zIndex":"14"}}};
+					for(i=arr.length; i>0; i--){
+							var imgObj = {src:arr[i-1].value.attr('src'),zIndex:arr[i-1].value.attr('zIndex')};
+							jsonObj["slide"].push(imgObj);
+					}
+					console.log(jsonObj);
+					//var contact = $.parseJSON(text);
+					//console.log(JSON.parse(text));
 				}
 				cnt++;
 			};

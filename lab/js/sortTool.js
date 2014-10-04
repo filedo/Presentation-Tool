@@ -2,13 +2,16 @@
 function sortTool(evt) {
 	var arr = new Array();
 
-	for (var i = 0, len = questionList.length; i < len; i++) {
+	/*for (var i = 0, len = questionList.length; i < len; i++) {
 		console.log(questionList[i]);
 	}
 	for (var i = 0, len = commentList.length; i < len; i++) {
 		console.log(commentList[i]);
+	}*/
+	for (var i = 0, len = list.length; i < len; i++) {
+		console.log(list[i]);
 	}
-
+	/*
 	// img要素をすべて取り出しarrにセットする
 	$('#slide img').each(function(i){
 		arr[i] = new Object();
@@ -32,7 +35,7 @@ function sortTool(evt) {
 	for(i = 0; i < arr.length; i++){
 		$('#slide').append(arr[i].value);
 	}
-
+	*/
 	// このメソッドが呼ばれると、通常実行されるアクションがキャンセルされる
 	// 例えばaタグのリンクをクリックすると通常はページが遷移するが、その処理をキャンセルできる
 	evt.preventDefault();

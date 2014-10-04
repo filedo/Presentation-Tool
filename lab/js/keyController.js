@@ -16,7 +16,7 @@ var selectedId = ["id",false];
 5.それ以外のフォームは非表示にする
 **/
 
-//1.キーと値の配列を作る （変数名が思いつかない）
+//1.キーと値の連想配列を作る （変数名が思いつかない）
 var slideIdAndFormId = {};
 $(function(){
 	// キーイベント処理
@@ -57,6 +57,29 @@ $(function(){
 			// フォームが選択された状態でdを押すと要素が削除される
 			case 68:
 			if(selectedId[1]==true){
+				// 削除された場合jsonObjからも削除する
+				// 感想フォーム
+				// 削除される感想フォームのcfnと一致するcfnを持つ連想配列をjsonObjのcommentsリストから調べ、
+				// 見つかれば、その連想配列を削除する
+				if($('#'+selectedId[0]).attr('name')=='opinion'){
+					for (var i = 0; i < jsonObj["comments"].length; i++) {
+						if(jsonObj["comments"][i]['cfn'] == $('#'+selectedId[0]).attr('cfn')){
+							jsonObj["comments"].splice(i,1);
+							//console.log(jsonObj);
+							break;
+						}
+					}
+				}
+				// アンケートフォーム
+				else if($('#'+selectedId[0]).attr('name')=='question'){
+					for (var i = 0; i < jsonObj["questions"].length; i++) {
+						if(jsonObj["questions"][i]['qfn'] == $('#'+selectedId[0]).attr('qfn')){
+							jsonObj["questions"].splice(i,1);
+							//console.log(jsonObj);
+							break;
+						}
+					}
+				}
 				$('#'+selectedId[0]).remove();
 				// 要素が削除されたのでselectedIdを初期化
 				selectedId = ["id",false];

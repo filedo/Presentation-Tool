@@ -11,6 +11,7 @@
 	<script src="js/sortTool.js"></script>
 	<script src="js/questionForm.js"></script>
 	<script src="js/commentForm.js"></script>
+	<script src="js/startUp.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/slide.css">
 	<link rel="stylesheet" type="text/css" href="lib/jquery-ui.min.css">
 	<link rel="stylesheet" type="text/css" href="css/jmenu.css">
@@ -54,29 +55,38 @@
 	}
 	</style>
 </head>
-<body>
+<body onload="startUp()">
 	<!-- メニュー（jMenuを採用） -->
 	<ul id="jMenu">
-		<li>
+		<li class="test">
 			<!-- fileタイプは特殊なのでaタグでイベントを発生させるとこうなる -->
 			<input type="file" id="files" style="display:none;" multiple>
 			<a href="Javascript:document.getElementById('files').click();">ファイル選択</a>
 		</li>
-		<li>
+		<li class="test">
 			<a href="" id="sortTool">スライドをソート</a>
 		</li>
-		<li>
+		<li class="test">
 			<a href="" id="removeSlide">スライドを削除</a>
 		</li>
-		<li>
+		<li class="test">
 			<a href="" id="addTool">機能追加</a>
 			<ul>
 				<li><a href="" id="questionForm">アンケート</a></li>
 				<li><a href="" id="commentForm">感想</a></li>
 			</ul>
 		</li>
+		<li>
+			<a href="" id="register">登録</a>
+		</li>
 	</ul>
-	<div id="set"></div>
+
+	<!---
+	<li>
+		<a href="" id="outputText">出力</a>
+	</li>
+	-->
+
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
 		<input id="spinner" value="1">
@@ -85,8 +95,6 @@
 
 	<!-- スライド -->
 	<figure id="slide"></figure>
-
-	<!-- <div id="droparea"></div> -->
 
 	<!-- アンケート -->
 	<form>
@@ -97,7 +105,6 @@
 	<form>
 		<div id="comments"></div>
 	</form>
-
 	<!-- スクリプト -->
 	<script>
 	$(document).ready(function() {
@@ -124,9 +131,6 @@
 		min:1
 	});
 
-	// アンケート機能の総作成数
-	// 最低でも1つ作成されるので初期値は1
-	//var qFormNum = 1;
 	// ダイアログ
 	$( '#questionDialog' ).dialog({
 		autoOpen: false,
@@ -167,9 +171,35 @@
 	$('#commentForm').click(commentForm);
 
 	$('#removeSlide').click(function(evt){
+		jsonObj["slide"] = [];
+		//console.log(jsonObj);
 		$('#slide').empty();
 		evt.preventDefault();
 	});
+
+	$('#register').click(function(evt){
+		SWSetCookie('sw_javascriptauth_password', 'aiueo');
+		evt.preventDefault();
+		//console.log(location.path);
+	});
+
+	$('#outputText').click(function(evt){
+		//console.log(SWGetCookie('sw_javascriptauth_password'));
+		evt.preventDefault();
+	});
+	function SWSetCookie(name, value, expire, path)
+	{
+		var cookie = name + '=' + escape(value);
+		if(expire)
+		{
+			cookie += '; expires=' + expire.toGMTString();
+		}
+		if(path)
+		{
+			cookie += '; path=' + path;
+		}
+		document.cookie = cookie;
+	}
 
 	</script>
 </body>
