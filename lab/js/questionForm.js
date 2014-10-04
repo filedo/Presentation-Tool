@@ -1,7 +1,7 @@
 // questionFormNumber(qfn)
 var qfn = 1;
 // アンケートの選択内容を格納するリスト
-var questionList = [];
+//var questionList = [];
 function questionForm (evt) {
 
 	// 1つのアンケートフォームの固まりとしてdivタグを作成する
@@ -10,6 +10,15 @@ function questionForm (evt) {
 	// 選択されると赤色の枠線が表示されドラッグ可能になる
 	var div = $('<div>').attr({id:"question"+qfn,name:"question",qfn:qfn}).draggable({
 		stop:function(e,ui){
+			// フォームを移動させた時に座標を上書きする
+			var questionObj = {id:$(this).attr('id'),qfn:Number($(this).attr('qfn')),spinner:$('#spinner').spinner("value"),question:{top:$('#question'+$(this).attr('qfn')+'-1').offset().top,left:$('#question'+$(this).attr('qfn')+'-1').offset().left},submit:{top:$('#qSubmit'+$(this).attr('qfn')).offset().top,left:$('#qSubmit'+$(this).attr('qfn')).offset().left}};
+			for (var i = 0; i < jsonObj["questions"].length; i++) {
+				if(jsonObj["questions"][i]['qfn'] == $(this).attr('qfn')){
+					jsonObj["questions"][i] = questionObj;
+					break;
+				}
+			}
+			//console.log(jsonObj);
 			div.css({
 				border:''
 			}).draggable('disable');
@@ -43,18 +52,18 @@ function questionForm (evt) {
 		} else {
 			// テキストエリアの入力内容を取得
 			console.log($("input[name="+name+"]:checked").val());
-			questionList.push($("input[name="+name+"]:checked").val());
+			//questionList.push($("input[name="+name+"]:checked").val());
 			// 送信後ラジオボタンの選択を無効にし、送信ボタンを非表示にする
 			$("input[name="+name+"]").attr('disabled', 'disabled');
 			$(this).css('visibility', 'hidden');
 		}
 	}));
 
-	var questionObj = {qfn:qfn,spinner:$('#spinner').spinner("value"),question:{top:$('#question'+qfn+'-1').offset().top,left:$('#question'+qfn+'-1').offset().left},submit:{top:$('#qSubmit'+qfn).offset().top,left:$('#qSubmit'+qfn).offset().left}};
+	var questionObj = {id:$('#question'+qfn).attr('id'),qfn:qfn,spinner:$('#spinner').spinner("value"),question:{top:$('#question'+qfn+'-1').offset().top,left:$('#question'+qfn+'-1').offset().left},submit:{top:$('#qSubmit'+qfn).offset().top,left:$('#qSubmit'+qfn).offset().left}};
 	jsonObj["questions"].push(questionObj);
 
 	//var text = '{"question'+qfn+'":{"qfn":"'+qfn+'","spinner":"'+$('#spinner').spinner("value")+'",question'+qfn+'":{"top":"'+$('#question'+qfn).offset().top+'","left":"'+$('#question'+qfn).offset().left+'"},"question'+qfn+'-1":{"top":"'+$('#question'+qfn+'-1').offset().top+'","left":"'+$('#question'+qfn+'-1').offset().left+'"},"qSubmit'+qfn+'":{"top":"'+$('#qSubmit'+qfn).offset().top+'","left":"'+$('#qSubmit'+qfn).offset().left+'"}}}';
-	console.log(jsonObj);
+	//console.log(jsonObj);
 
 	qfn++;
 }

@@ -27,8 +27,9 @@ $(function(){
 			case 39:
 			$('#slide').prepend($('#slide').find(":last"));
 			// 3.スライドを移動した時、現在のスライドidを取得し、
-			// 配列を全て検索してスライドidと関連づけられているフォームidが存在するか調べる
+			// 連想配列を全て検索して、取得したスライドidをキーとする値（フォームid）が存在するか調べる
 			var key = $('#slide').find(":last").attr("zIndex");
+			console.log(slideIdAndFormId);
 			for (var keyString in slideIdAndFormId) {
 				// 4.存在すればそのフォームを表示させる
 				// 5.それ以外のフォームは非表示にする
@@ -92,6 +93,31 @@ $(function(){
 				// 2.フォームをセットした時、キーを現在のスライドid、値をフォームidとして関連づける
 				var key = $('#slide').find(":last").attr("zIndex");
 				var value = $('#'+selectedId[0]).attr("id");
+				// セットするフォームのidと一致するidをjsonObjから探し、
+				// 見つかればその連想配列に新しくslideIndexという要素を追加し、keyをセットする
+				// フォームの情報にセットされたスライドのindexが追加される（どのフォームがどのスライドにセットされているかが分かる）
+				// 再読み込み時にはidとslideIndexをslideIdAndFormIdに追加すれば復元できるはず slideIdAndFormId[slideIndex]=id;
+				// 感想フォーム
+				if($('#'+selectedId[0]).attr('name')=='opinion'){
+					for (var i = 0; i < jsonObj["comments"].length; i++) {
+						if(jsonObj["comments"][i]['id'] == value){
+							jsonObj["comments"][i].slideIndex = Number(key);
+							//console.log(jsonObj);
+							break;
+						}
+					}
+				}
+				// アンケートフォーム
+				else if($('#'+selectedId[0]).attr('name')=='question'){
+					for (var i = 0; i < jsonObj["questions"].length; i++) {
+						if(jsonObj["questions"][i]['id'] == value){
+							jsonObj["questions"][i].slideIndex = Number(key);
+							//console.log(jsonObj);
+							break;
+						}
+					}
+				}
+				// この仕様では、もしkeyが存在していれば、valueが上書きされるので1枚のスライドに2つ以上フォームを設定できない
 				slideIdAndFormId[key] = value;
 				$('#'+selectedId[0]).css({
 					border:''

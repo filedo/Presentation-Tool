@@ -78,7 +78,7 @@ function fileSelect(evt) {
 							var imgObj = {src:arr[i-1].value.attr('src'),zIndex:arr[i-1].value.attr('zIndex')};
 							jsonObj["slide"].push(imgObj);
 					}
-					console.log(jsonObj);
+					//console.log(jsonObj);
 					//var contact = $.parseJSON(text);
 					//console.log(JSON.parse(text));
 				}

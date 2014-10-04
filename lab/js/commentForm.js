@@ -11,6 +11,15 @@ function commentForm(evt) {
 	// 選択されると赤色の枠線が表示されドラッグ可能になる
 	var div = $('<div>').attr({id:"opinion"+cfn,name:"opinion",cfn:cfn}).draggable({
 		stop:function(e,ui){
+			// フォームを移動させた時に座標を上書きする
+			var commentObj = {id:$(this).attr('id'),cfn:Number($(this).attr('cfn')),opinion:{top:$('#opinion'+$(this).attr('cfn')+'-1').offset().top,left:$('#opinion'+$(this).attr('cfn')+'-1').offset().left},comment:{top:$('#comment'+$(this).attr('cfn')).offset().top,left:$('#comment'+$(this).attr('cfn')).offset().left},submit:{top:$('#cSubmit'+$(this).attr('cfn')).offset().top,left:$('#cSubmit'+$(this).attr('cfn')).offset().left}};
+			for (var i = 0; i < jsonObj["comments"].length; i++) {
+				if(jsonObj["comments"][i]['cfn'] == $(this).attr('cfn')){
+					jsonObj["comments"][i] = commentObj;
+					break;
+				}
+			}
+			//console.log(jsonObj);
 			$(this).css({
 				border:''
 			}).draggable('disable');
@@ -67,11 +76,11 @@ function commentForm(evt) {
 	}));
 
 
-	var commentObj = {cfn:cfn,opinion:{top:$('#opinion'+cfn+'-1').offset().top,left:$('#opinion'+cfn+'-1').offset().left},comment:{top:$('#comment'+cfn).offset().top,left:$('#comment'+cfn).offset().left},submit:{top:$('#cSubmit'+cfn).offset().top,left:$('#cSubmit'+cfn).offset().left}};
+	var commentObj = {id:$('#opinion'+cfn).attr('id'),cfn:cfn,opinion:{top:$('#opinion'+cfn+'-1').offset().top,left:$('#opinion'+cfn+'-1').offset().left},comment:{top:$('#comment'+cfn).offset().top,left:$('#comment'+cfn).offset().left},submit:{top:$('#cSubmit'+cfn).offset().top,left:$('#cSubmit'+cfn).offset().left}};
 	jsonObj["comments"].push(commentObj);
 	//var text = '{"comment'+cfn+'":{"cfn":"'+cfn+'","opinion'+cfn+'":{"top":"'+$('#opinion'+cfn).offset().top+'","left":"'+$('#opinion'+cfn).offset().left+'"},"opinion'+cfn+'-1":{"top":"'+$('#opinion'+cfn+'-1').offset().top+'","left":"'+$('#opinion'+cfn+'-1').offset().left+'"},"opinion'+cfn+'-2":{"top":"'+$('#opinion'+cfn+'-2').offset().top+'","left":"'+$('#opinion'+cfn+'-2').offset().left+'"},"comment'+cfn+'":{"top":"'+$('#comment'+cfn).offset().top+'","left":"'+$('#comment'+cfn).offset().left+'"},"cSubmit'+cfn+'":{"top":"'+$('#cSubmit'+cfn).offset().top+'","left":"'+$('#cSubmit'+cfn).offset().left+'"}}}';
 
-	console.log(jsonObj);
+	//console.log(jsonObj);
 	//var contact = $.parseJSON(text);
 	//console.log(JSON.parse(text));
 
