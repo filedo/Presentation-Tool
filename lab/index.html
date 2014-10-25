@@ -6,12 +6,18 @@
 	<script src="/lib/jquery-1.11.1.min.js"></script>
 	<script src="/lib/jquery-ui.min.js"></script>
 	<script src="/lib/jMenu.jquery.min.js"></script>
+	<script src="/lib/d3.js"></script>
+	<script src="/js/nextPage.js"></script>
+	<script src="/js/prependPage.js"></script>
 	<script src="/js/keyController.js"></script>
-	<script src="/js/fileSelect.js"></script>
-	<script src="/js/questionForm.js"></script>
-	<script src="/js/commentForm.js"></script>
+	<script src="/js/removeForm.js"></script>
+	<script src="/js/setForm.js"></script>
+	<script src="/js/slideLoad.js"></script>
+	<script src="/js/createQuestion.js"></script>
+	<script src="/js/createComment.js"></script>
 	<script src="/js/startUp.js"></script>
 	<script src="/js/save.js"></script>
+	<script src="/js/count.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="/css/slide.css">
@@ -58,47 +64,43 @@
 	</style>
 </head>
 <body onload="startUp()" onunload="save()">
-	<!-- メニュー（jMenuを採用） -->
-	<ul id="jMenu">
-		<li class="test">
-			<!-- fileタイプは特殊なのでaタグでイベントを発生させるとこうなる -->
-			<input type="file" id="files" style="display:none;" multiple>
-			<a href="Javascript:document.getElementById('files').click();">ファイル選択</a>
-		</li>
-		<li class="test">
-			<a href="" id="removeSlide">スライドを削除</a>
-		</li>
-		<li class="test">
-			<a href="" id="addTool">機能追加</a>
-			<ul>
-				<li><a href="" id="questionForm">アンケート</a></li>
-				<li><a href="" id="commentForm">感想</a></li>
+	<div id="main">
+		<div id="menu">
+			<!-- メニュー（jMenuを採用） -->
+			<ul id="jMenu">
+				<li class="test">
+					<a href="" id="addTool">機能追加</a>
+					<ul>
+						<li><a href="" id="questionForm">アンケート</a></li>
+						<li><a href="" id="commentForm">感想</a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="" id="register">登録</a>
+				</li>
+				<li>
+					<a href="" id="count">集計</a>
+				</li>
 			</ul>
-		</li>
-		<li>
-			<a href="" id="register">登録</a>
-		</li>
-	</ul>
-<form id="myForm">
-			<!--<input type="text" id="name">--> <input type="text" id="msg"> <input type="submit" value="Send!">
-		</form>
+		</div>
+		<div id="main-contents">
+			<!-- スライド -->
+			<figure id="slide"></figure>
+			<div id="chatArea">
 				<ul id="logs"></ul>
-
-	<!---
-	<li>
-		<a href="" id="outputText">出力</a>
-	</li>
-	-->
+			</div>
+			<form id="chatForm">
+				<input type="text" id="msg"> <input type="submit" value="Send">
+			</form>
+		</div>
+	</div>
+	<div id="canvas" title="アンケートの集計結果"></div>
 
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
 		<input id="spinner" value="1">
 		<p>選択肢の数を入力して下さい。</p>
 	</div>
-
-	<!-- スライド -->
-	<figure id="slide"></figure>
-
 	<!-- アンケート -->
 	<form>
 		<div id="questions"></div>
@@ -111,24 +113,27 @@
 	<!-- スクリプト -->
 	<script>
 	var socket = io.connect();
-	$(function(){
-		// emit: イベントを発信している
-		// on: イベントを待ち受けている
-		$('#myForm').submit(function(e){
-			e.preventDefault();
-			socket.emit('emit_from_client',$('#msg').val());
-
-			// 複数の値を送る時、jsonで渡す
-			//socket.json.emit('emit_from_client',{
-			//	msg: $('#msg').val(),
-			//	name: $('#name').val()
-			//});
-			$('#msg').val('').focus();
-		});
-		socket.on('emit_from_server',function(data){
-			$('#logs').append($('<li>').text(data));
-		});
+	// スライドに使う画像を#slideに追加
+	// length:スライドに使う画像のファイル数
+	socket.on('slideload_from_server',function(length){
+		slideLoad(length);
 	});
+	// emit: イベントを発信している
+	// on: イベントを待ち受けている
+	$('#chatForm').submit(function(e){
+		e.preventDefault();
+		socket.emit('emit_from_client',$('#msg').val());
+		// 複数の値を送る時、jsonで渡す
+		//socket.json.emit('emit_from_client',{
+		//	msg: $('#msg').val(),
+		//	name: $('#name').val()
+		//});
+		$('#msg').val('').focus();
+	});
+	socket.on('emit_from_server',function(data){
+		$('#logs').append($('<li>').text(data));
+	});
+
 	$(document).ready(function() {
 		$('#jMenu').jMenu({
 			openClick : false,
@@ -162,7 +167,8 @@
 		{
 			text: "Ok",
 			click: function() {
-				questionForm();
+				createQuestion($('#spinner').spinner("value"));
+				//socket.emit('qForm_from_client',$('#spinner').spinner("value"));
 				$( this ).dialog( "close" );
 			}
 		},
@@ -175,9 +181,6 @@
 		]
 	});
 
-	// スライドのファイルを選択すると実行される
-	// document.getElementById('files').addEventListener('change', fileSelect, false);と同様
-	$('#files').on('change',fileSelect);
 
 	// evt.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
 	$('#addTool').click(function(evt){evt.preventDefault();});
@@ -188,25 +191,64 @@
 		evt.preventDefault();
 	});
 
-	$('#commentForm').click(commentForm);
-
-	$('#removeSlide').click(function(evt){
-		jsonObj["slide"] = [];
-		//console.log(jsonObj);
-		$('#slide').empty();
+	$('#commentForm').click(function(evt){
+		createComment();
+		//socket.emit('cForm_from_client');
 		evt.preventDefault();
 	});
+
+
+	// 集計ボタン
+	$('#count').click(function(evt){
+		socket.emit('countDialog_from_client');
+		//$('#canvas').dialog("open");
+		//socket.emit('count_from_client');
+		evt.preventDefault();
+	});
+	socket.on('countDialog_from_server',function(){
+		$('#canvas').dialog("open");
+	});
+	$( '#canvas' ).dialog({
+		id:'canvasDialog',
+		autoOpen: false,
+		width: 500,
+		modal: true,
+		buttons: [
+		{
+			text: "集計",
+			click: function() {
+				socket.emit('count_from_client');
+			}
+		}
+		]
+	});
+	// question.txtファイルからアンケートの集計を行う
+	// answerList:question.txtの中身をカンマで区切ったリスト
+	socket.on('count_from_server',function(answerList){
+		count(answerList);
+		//socket.emit('rmQuestionFile_from_client');
+	});
+
+	// 最後の要素を#slideの先頭に追加（移動）させる
+	socket.on('nextpage_from_server',function(){
+		nextPage();
+	});
+	// 最初の要素を#slideの末尾に追加（移動）させる
+	socket.on('prepage_from_server',function(){
+		prependPage();
+	});
+
 
 	$('#register').click(function(evt){
-		SWSetCookie('sw_javascriptauth_password', 'aiueo');
+		socket.emit('register_from_client');
+		//SWSetCookie('sw_javascriptauth_password', 'aiueo');
 		evt.preventDefault();
-		//console.log(location.path);
 	});
 
-	$('#outputText').click(function(evt){
-		//console.log(SWGetCookie('sw_javascriptauth_password'));
-		evt.preventDefault();
+	socket.on('register_from_server',function(id){
+		SWSetCookie('sw_javascriptauth_password', id);
 	});
+
 	function SWSetCookie(name, value, expire, path)
 	{
 		var cookie = name + '=' + escape(value);
