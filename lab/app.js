@@ -81,21 +81,25 @@ io.sockets.on('connection',function(socket) {
     });
     // jsonObjの情報を現在のディレクトリにjson.txtとして保存する
     socket.on('save_from_client',function(data){
-        var file = 'json.txt';
-        fs.writeFile(file, JSON.stringify(data));
-        fs.readFile(file, 'utf8', function (err, data) {
-            var a = JSON.parse(data);
-            console.log(JSON.parse(data));
-            // アクセスできる
-            //console.log(a["comments"][1]["id"]);
+        fs.writeFile('json.txt', JSON.stringify(data));
+    });
+    // ページの再読み込み時にjson.txtが存在すればそのデータを読み込み、存在しなければ作成する
+     socket.on('reload_from_client',function(jsonObj){
+         fs.readFile('json.txt', 'utf8', function (err, data) {
+            if(err){
+                fs.writeFile('json.txt',JSON.stringify(jsonObj));
+            }else{
+                socket.emit('reload_from_server',JSON.parse(data));
+            }
         });
     });
     // question.txtファイルを読み込み、カンマで区切ったリストに変換し、そのリストをすべてのクライアントに送る
     // answerList:['1','2','4','1'...]
     socket.on('count_from_client',function(){
-        var file = 'question.txt';
-        fs.readFile(file,'utf8',function(err,data){
-            if (!err){
+        fs.readFile('question.txt','utf8',function(err,data){
+            if (err){
+                console.log(err);
+            }else{
                 var answerList = data.split(',');
                 // question.txtの最後の','を削除
                 answerList.pop();
@@ -126,13 +130,11 @@ io.sockets.on('connection',function(socket) {
         });
     });
     socket.on('register_from_client',function(){
-        var file = 'cookie.txt';
-        fs.writeFile(file, socket.id);
+        fs.writeFile('cookie.txt', socket.id);
         socket.emit('register_from_server',socket.id);
     });
     socket.on('cookie_client',function(id){
-        var file = 'cookie.txt';
-        fs.readFile(file, 'utf8', function (err, data) {
+        fs.readFile('cookie.txt', 'utf8', function (err, data) {
             if(id==data){
                 socket.emit('presenter_from_server');
             }

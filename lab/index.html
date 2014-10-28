@@ -13,10 +13,12 @@
 	<script src="/js/removeForm.js"></script>
 	<script src="/js/setForm.js"></script>
 	<script src="/js/slideLoad.js"></script>
+	<script src="/js/slideReload.js"></script>
 	<script src="/js/createQuestion.js"></script>
 	<script src="/js/createComment.js"></script>
 	<script src="/js/startUp.js"></script>
 	<script src="/js/save.js"></script>
+	<script src="/js/reload.js"></script>
 	<script src="/js/count.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 
@@ -63,11 +65,14 @@
 	}
 	</style>
 </head>
-<body onload="startUp()" onunload="save()">
+<body onload="startUp()">
 	<div id="main">
 		<div id="menu">
 			<!-- メニュー（jMenuを採用） -->
 			<ul id="jMenu">
+				<li class="test">
+					<a href="" id="addSlide">スライド追加</a>
+				</li>
 				<li class="test">
 					<a href="" id="addTool">機能追加</a>
 					<ul>
@@ -77,6 +82,9 @@
 				</li>
 				<li>
 					<a href="" id="register">登録</a>
+				</li>
+				<li>
+					<a href="" id="save">現在の状態を保存</a>
 				</li>
 				<li>
 					<a href="" id="count">集計</a>
@@ -113,11 +121,11 @@
 	<!-- スクリプト -->
 	<script>
 	var socket = io.connect();
-	// スライドに使う画像を#slideに追加
-	// length:スライドに使う画像のファイル数
-	socket.on('slideload_from_server',function(length){
-		slideLoad(length);
+
+	socket.on('reload_from_server',function(jsondata){
+		reload(jsondata);
 	});
+
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている
 	$('#chatForm').submit(function(e){
@@ -167,8 +175,7 @@
 		{
 			text: "Ok",
 			click: function() {
-				createQuestion($('#spinner').spinner("value"));
-				//socket.emit('qForm_from_client',$('#spinner').spinner("value"));
+				createQuestion($('#spinner').spinner("value"),0,50,false);
 				$( this ).dialog( "close" );
 			}
 		},
@@ -181,6 +188,16 @@
 		]
 	});
 
+	// サーバにスライド読み込みのメッセージを送信
+	$('#addSlide').click(function(evt){
+		socket.emit('slideload_from_client');
+		evt.preventDefault();
+	});
+	// スライドに使う画像を#slideに追加
+	// length:スライドに使う画像のファイル数
+	socket.on('slideload_from_server',function(length){
+		slideLoad(length);
+	});
 
 	// evt.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
 	$('#addTool').click(function(evt){evt.preventDefault();});
@@ -192,8 +209,7 @@
 	});
 
 	$('#commentForm').click(function(evt){
-		createComment();
-		//socket.emit('cForm_from_client');
+		createComment(0,50,false);
 		evt.preventDefault();
 	});
 
@@ -222,6 +238,12 @@
 		}
 		]
 	});
+
+	$('#save').click(function(evt){
+		save();
+		evt.preventDefault();
+	})
+
 	// question.txtファイルからアンケートの集計を行う
 	// answerList:question.txtの中身をカンマで区切ったリスト
 	socket.on('count_from_server',function(answerList){
