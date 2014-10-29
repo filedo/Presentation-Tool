@@ -20,6 +20,9 @@
 	<script src="/js/save.js"></script>
 	<script src="/js/reload.js"></script>
 	<script src="/js/count.js"></script>
+	<script src="/js/SWSetCookie.js"></script>
+	<script src="/js/SWGetCookie.js"></script>
+	<script src="/js/client.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 
 	<link rel="stylesheet" type="text/css" href="/css/slide.css">
@@ -84,6 +87,9 @@
 					<a href="" id="register">登録</a>
 				</li>
 				<li>
+					<a href="" id="release">解除</a>
+				</li>
+				<li>
 					<a href="" id="save">現在の状態を保存</a>
 				</li>
 				<li>
@@ -122,10 +128,6 @@
 	<script>
 	var socket = io.connect();
 
-	socket.on('reload_from_server',function(jsondata){
-		reload(jsondata);
-	});
-
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている
 	$('#chatForm').submit(function(e){
@@ -137,9 +139,6 @@
 		//	name: $('#name').val()
 		//});
 		$('#msg').val('').focus();
-	});
-	socket.on('emit_from_server',function(data){
-		$('#logs').append($('<li>').text(data));
 	});
 
 	$(document).ready(function() {
@@ -193,11 +192,6 @@
 		socket.emit('slideload_from_client');
 		evt.preventDefault();
 	});
-	// スライドに使う画像を#slideに追加
-	// length:スライドに使う画像のファイル数
-	socket.on('slideload_from_server',function(length){
-		slideLoad(length);
-	});
 
 	// evt.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
 	$('#addTool').click(function(evt){evt.preventDefault();});
@@ -213,7 +207,6 @@
 		evt.preventDefault();
 	});
 
-
 	// 集計ボタン
 	$('#count').click(function(evt){
 		socket.emit('countDialog_from_client');
@@ -221,9 +214,7 @@
 		//socket.emit('count_from_client');
 		evt.preventDefault();
 	});
-	socket.on('countDialog_from_server',function(){
-		$('#canvas').dialog("open");
-	});
+
 	$( '#canvas' ).dialog({
 		id:'canvasDialog',
 		autoOpen: false,
@@ -244,47 +235,15 @@
 		evt.preventDefault();
 	})
 
-	// question.txtファイルからアンケートの集計を行う
-	// answerList:question.txtの中身をカンマで区切ったリスト
-	socket.on('count_from_server',function(answerList){
-		count(answerList);
-		//socket.emit('rmQuestionFile_from_client');
-	});
-
-	// 最後の要素を#slideの先頭に追加（移動）させる
-	socket.on('nextpage_from_server',function(){
-		nextPage();
-	});
-	// 最初の要素を#slideの末尾に追加（移動）させる
-	socket.on('prepage_from_server',function(){
-		prependPage();
-	});
-
-
 	$('#register').click(function(evt){
 		socket.emit('register_from_client');
-		//SWSetCookie('sw_javascriptauth_password', 'aiueo');
 		evt.preventDefault();
 	});
 
-	socket.on('register_from_server',function(id){
-		SWSetCookie('sw_javascriptauth_password', id);
+	$('#release').click(function(evt){
+		socket.emit('release_from_client');
+		evt.preventDefault();
 	});
-
-	function SWSetCookie(name, value, expire, path)
-	{
-		var cookie = name + '=' + escape(value);
-		if(expire)
-		{
-			cookie += '; expires=' + expire.toGMTString();
-		}
-		if(path)
-		{
-			cookie += '; path=' + path;
-		}
-		document.cookie = cookie;
-	}
-
 	</script>
 </body>
 </html>

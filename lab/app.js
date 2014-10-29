@@ -130,14 +130,28 @@ io.sockets.on('connection',function(socket) {
         });
     });
     socket.on('register_from_client',function(){
-        fs.writeFile('cookie.txt', socket.id);
-        socket.emit('register_from_server',socket.id);
+        fs.readFile('cookie.txt', 'utf8', function (err, data) {
+            // 登録者がいない
+            if(err){
+                fs.writeFile('cookie.txt', socket.id);
+                socket.emit('register_from_server',socket.id);
+            }
+            // 登録者がいる
+            else{
+                console.log('すでに登録されています。');
+            }
+        });
     });
-    socket.on('cookie_client',function(id){
+    socket.on('cookie_from_client',function(id){
         fs.readFile('cookie.txt', 'utf8', function (err, data) {
             if(id==data){
                 socket.emit('presenter_from_server');
             }
+        });
+    });
+    socket.on('release_from_client',function(){
+        fs.unlink(__dirname+'/cookie.txt',function(err){
+            if (err) throw err;
         });
     });
     // 全クライアントに→キーが押されたことを伝える
