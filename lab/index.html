@@ -66,6 +66,9 @@
 	#questionDialog {
 		font: 150% "Trebuchet MS", sans-serif;
 	}
+	.presenterTools{
+		visibility:hidden;
+	}
 	</style>
 </head>
 <body onload="startUp()">
@@ -73,27 +76,27 @@
 		<div id="menu">
 			<!-- メニュー（jMenuを採用） -->
 			<ul id="jMenu">
-				<li class="test">
+				<li class="presenterTools">
 					<a href="" id="addSlide">スライド追加</a>
 				</li>
-				<li class="test">
+				<li class="presenterTools">
 					<a href="" id="addTool">機能追加</a>
 					<ul>
 						<li><a href="" id="questionForm">アンケート</a></li>
 						<li><a href="" id="commentForm">感想</a></li>
 					</ul>
 				</li>
+				<li class="presenterTools">
+					<a href="" id="count">集計</a>
+				</li>
 				<li>
 					<a href="" id="register">登録</a>
 				</li>
-				<li>
+				<li class="presenterTools">
 					<a href="" id="release">解除</a>
 				</li>
-				<li>
+				<li class="presenterTools">
 					<a href="" id="save">現在の状態を保存</a>
-				</li>
-				<li>
-					<a href="" id="count">集計</a>
 				</li>
 			</ul>
 		</div>
@@ -127,6 +130,7 @@
 	<!-- スクリプト -->
 	<script>
 	var socket = io.connect();
+	var presenter = false;
 
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている

@@ -138,7 +138,7 @@ io.sockets.on('connection',function(socket) {
             }
             // 登録者がいる
             else{
-                console.log('すでに登録されています。');
+                socket.emit('registerFailure_from_server');
             }
         });
     });
@@ -152,6 +152,7 @@ io.sockets.on('connection',function(socket) {
     socket.on('release_from_client',function(){
         fs.unlink(__dirname+'/cookie.txt',function(err){
             if (err) throw err;
+            socket.on('release_from_server');
         });
     });
     // 全クライアントに→キーが押されたことを伝える
