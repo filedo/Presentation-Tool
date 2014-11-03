@@ -42,9 +42,14 @@ function handler(req, res) {
         case '.png':
         fs.readFile(__dirname +'/node_modules'+req.url,
                     function (err, data) {
-                        res.writeHead(200, {'Content-Type': 'image/png'});
-                        res.write(data);
-                        res.end();
+                        if(err){
+                            res.writeHead(500,{'Content-Type':'image/png'});
+                            res.write(err.toString());
+                        }else{
+                            res.writeHead(200, {'Content-Type': 'image/png'});
+                            res.write(data);
+                            res.end();
+                        }
                     }
                     );
         break;
@@ -79,87 +84,11 @@ io.sockets.on('connection',function(socket) {
 		//});
 
     });
-    // jsonObjの情報を現在のディレクトリにjson.txtとして保存する
-    socket.on('save_from_client',function(data){
-        fs.writeFile('json.txt', JSON.stringify(data));
-    });
-    // ページの再読み込み時にjson.txtが存在すればそのデータを読み込み、存在しなければ作成する
-     socket.on('reload_from_client',function(jsonObj){
-         fs.readFile('json.txt', 'utf8', function (err, data) {
-            if(err){
-                fs.writeFile('json.txt',JSON.stringify(jsonObj));
-            }else{
-                socket.emit('reload_from_server',JSON.parse(data));
-            }
-        });
-    });
-    // question.txtファイルを読み込み、カンマで区切ったリストに変換し、そのリストをすべてのクライアントに送る
-    // answerList:['1','2','4','1'...]
-    socket.on('count_from_client',function(){
-        fs.readFile('question.txt','utf8',function(err,data){
-            if (err){
-                console.log(err);
-            }else{
-                var answerList = data.split(',');
-                // question.txtの最後の','を削除
-                answerList.pop();
-                io.sockets.emit('count_from_server',answerList);
-            }
-        });
-    });
-    socket.on('countDialog_from_client',function(){
-        io.sockets.emit('countDialog_from_server');
-    });
-    // コメントフォームの送信内容を現在のディレクトリにcomment.txtとして保存する
-    socket.on('comment_from_client',function(data1,data2){
-        var commentData = data1 + ": " + data2 + "\n";
-        fs.appendFile('comment.txt',commentData, function (err) {
-            if (err) throw err;
-        });
-    });
-    // アンケートフォームの送信内容を現在のディレクトリにcomment.txtとして保存する
-    socket.on('question_from_client',function(data){
-        var questionData = data + ",";
-        fs.appendFile('question.txt',questionData, function (err) {
-            if (err) throw err;
-        });
-    });
-    socket.on('rmQuestionFile_from_client',function(){
-        fs.unlink(__dirname+'/question.txt',function(err){
-            if (err) throw err;
-        });
-    });
-    socket.on('register_from_client',function(){
-        fs.readFile('cookie.txt', 'utf8', function (err, data) {
-            // 登録者がいない
-            if(err){
-                fs.writeFile('cookie.txt', socket.id);
-                socket.emit('register_from_server',socket.id);
-            }
-            // 登録者がいる
-            else{
-                socket.emit('registerFailure_from_server');
-            }
-        });
-    });
-    socket.on('cookie_from_client',function(id){
-        fs.readFile('cookie.txt', 'utf8', function (err, data) {
-            if(id==data){
-                socket.emit('presenter_from_server');
-            }
-        });
-    });
-    socket.on('release_from_client',function(){
-        fs.unlink(__dirname+'/cookie.txt',function(err){
-            if (err) throw err;
-            socket.on('release_from_server');
-        });
-    });
-    // 全クライアントに→キーが押されたことを伝える
+    // 全クライアントのスライドを次に進める
     socket.on('nextpage_from_client',function(){
        io.sockets.emit('nextpage_from_server');
     });
-    // 全クライアントに←キーが押されたことを伝える
+    // 全クライアントのスライドを前に戻す
     socket.on('prepage_from_client',function(){
        io.sockets.emit('prepage_from_server');
     });
@@ -172,5 +101,85 @@ io.sockets.on('connection',function(socket) {
            io.sockets.emit('slideload_from_server',files.length);
         });
     });
-
+    // jsonObjの情報を現在のディレクトリにjson.txtとして保存する
+    socket.on('save_from_client',function(jsonObj){
+        fs.writeFile('json.txt', JSON.stringify(jsonObj));
+    });
+    // ページの再読み込み時にjson.txtが存在すればそのデータを読み込み、存在しなければ作成する
+     socket.on('reload_from_client',function(jsonObj){
+         fs.readFile('json.txt', 'utf8', function (err, data) {
+            if(err){
+                fs.writeFile('json.txt',JSON.stringify(jsonObj));
+            }else{
+                socket.emit('reload_from_server',JSON.parse(data));
+            }
+        });
+    });
+    // question.txtファイルを読み込み、カンマで区切ったリストに変換し、その情報からアンケートを集計する
+    // answerList:['1','2','4','1'...]
+    socket.on('count_from_client',function(){
+        fs.readFile('question.txt','utf8',function(err,data){
+            if (err){
+                // 何もしない
+            }else{
+                var answerList = data.split(',');
+                // question.txtの最後の','を削除
+                answerList.pop();
+                io.sockets.emit('count_from_server',answerList);
+            }
+        });
+    });
+    // アンケートの集計ダイアログを表示する
+    socket.on('countDialog_from_client',function(){
+        io.sockets.emit('countDialog_from_server');
+    });
+    // アンケートの集計が終わるとquestion.txtを削除する
+    socket.on('rmQuestionFile_from_client',function(){
+        fs.unlink(__dirname+'/question.txt',function(err){
+          //  if (err) throw err;
+        });
+    });
+    // コメントフォームの送信内容をcomment.txtとして保存する
+    socket.on('comment_from_client',function(data1,data2){
+        var commentData = data1 + ": " + data2 + "\n";
+        fs.appendFile('comment.txt',commentData, function (err) {
+            if (err) throw err;
+        });
+    });
+    // アンケートフォームの送信内容をquestion.txtとして保存する
+    socket.on('question_from_client',function(data){
+        var questionData = data + ",";
+        fs.appendFile('question.txt',questionData, function (err) {
+            if (err) throw err;
+        });
+    });
+    // 発表者として登録されているかどうかを確認し、いなければ発表者として登録できる
+    socket.on('register_from_client',function(){
+        fs.readFile('cookie.txt', 'utf8', function (err, data) {
+            // 登録者がいない
+            if(err){
+                socket.emit('register_from_server');
+            }
+        });
+    });
+    // 入力したユーザ名をcookie.txtとして保存する
+    socket.on('registered_from_client',function(id){
+        fs.writeFile('cookie.txt',id);
+    });
+    // cookieとサーバの値を比較し、発表者かどうかを認証する
+    socket.on('cookie_from_client',function(id){
+        fs.readFile('cookie.txt', 'utf8', function (err, data) {
+            // 発表者なら発表者特有の機能が使える
+            if(id==data){
+                socket.emit('presenter_from_server');
+            }
+        });
+    });
+    // cookie.txtを削除し、発表者としての権限を解除する
+    socket.on('release_from_client',function(){
+        fs.unlink(__dirname+'/cookie.txt',function(err){
+            if (err) throw err;
+            socket.emit('release_from_server');
+        });
+    });
 });

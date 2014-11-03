@@ -24,7 +24,6 @@
 	<script src="/js/SWGetCookie.js"></script>
 	<script src="/js/client.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
-
 	<link rel="stylesheet" type="text/css" href="/css/slide.css">
 	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.min.css">
 	<link rel="stylesheet" type="text/css" href="/css/jmenu.css">
@@ -89,14 +88,11 @@
 				<li class="presenterTools">
 					<a href="" id="count">集計</a>
 				</li>
-				<li>
-					<a href="" id="register">登録</a>
+				<li class="presenterTools">
+					<a href="" id="save">現在の状態を保存</a>
 				</li>
 				<li class="presenterTools">
 					<a href="" id="release">解除</a>
-				</li>
-				<li class="presenterTools">
-					<a href="" id="save">現在の状態を保存</a>
 				</li>
 			</ul>
 		</div>
@@ -111,6 +107,7 @@
 			</form>
 		</div>
 	</div>
+	<!-- アンケート集計時のダイアログ -->
 	<div id="canvas" title="アンケートの集計結果"></div>
 
 	<!-- アンケート機能追加時のダイアログ -->
@@ -129,21 +126,13 @@
 	</form>
 	<!-- スクリプト -->
 	<script>
-	var socket = io.connect();
-	var presenter = false;
 
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている
-	$('#chatForm').submit(function(e){
-		e.preventDefault();
-		socket.emit('emit_from_client',$('#msg').val());
-		// 複数の値を送る時、jsonで渡す
-		//socket.json.emit('emit_from_client',{
-		//	msg: $('#msg').val(),
-		//	name: $('#name').val()
-		//});
-		$('#msg').val('').focus();
-	});
+	var socket = io.connect();
+	// 発表者かどうかのフラグ
+	// true:発表者 false:聴衆者
+	var presenter = false;
 
 	$(document).ready(function() {
 		$('#jMenu').jMenu({
@@ -164,12 +153,13 @@
 		});
 	});
 
+	// アンケートの選択肢の数
 	$( '#spinner' ).spinner({
 		max:9,
 		min:1
 	});
 
-	// ダイアログ
+	// アンケートのダイアログ
 	$( '#questionDialog' ).dialog({
 		autoOpen: false,
 		width: 300,
@@ -178,6 +168,7 @@
 		{
 			text: "Ok",
 			click: function() {
+				// left:0 top:50 の位置にアンケートフォームを作成
 				createQuestion($('#spinner').spinner("value"),0,50,false);
 				$( this ).dialog( "close" );
 			}
@@ -191,62 +182,77 @@
 		]
 	});
 
-	// サーバにスライド読み込みのメッセージを送信
-	$('#addSlide').click(function(evt){
+	$('#chatForm').submit(function(e){
+		socket.emit('emit_from_client',$('#msg').val());
+		// 複数の値を送る時、jsonで渡す
+		//socket.json.emit('emit_from_client',{
+		//	msg: $('#msg').val(),
+		//	name: $('#name').val()
+		//});
+		$('#msg').val('').focus();
+		e.preventDefault();
+	});
+
+	// スライド追加ボタン
+	$('#addSlide').click(function(e){
+		// サーバに格納されているスライドの画像を読み込む（同期）
 		socket.emit('slideload_from_client');
-		evt.preventDefault();
+		e.preventDefault();
 	});
 
-	// evt.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
-	$('#addTool').click(function(evt){evt.preventDefault();});
+	// e.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
+	$('#addTool').click(function(e){e.preventDefault();});
 
-	// 機能追加のメニューでアンケートボタンを押した時、ダイアログを表示する
-	$('#questionForm').click(function(evt){
+	// アンケートボタン
+	$('#questionForm').click(function(e){
+		// 選択肢の数を設定するダイアログを表示
 		$('#questionDialog').dialog("open");
-		evt.preventDefault();
+		e.preventDefault();
 	});
 
-	$('#commentForm').click(function(evt){
+	// 感想ボタン
+	$('#commentForm').click(function(e){
+		// left:0 top:50 の位置に感想フォームを作成
 		createComment(0,50,false);
-		evt.preventDefault();
+		e.preventDefault();
 	});
 
 	// 集計ボタン
-	$('#count').click(function(evt){
+	$('#count').click(function(e){
+		// アンケートの集計ダイアログを表示する（同期）
 		socket.emit('countDialog_from_client');
-		//$('#canvas').dialog("open");
-		//socket.emit('count_from_client');
-		evt.preventDefault();
+		e.preventDefault();
 	});
 
+	// 集計ボタンのダイアログ
 	$( '#canvas' ).dialog({
-		id:'canvasDialog',
 		autoOpen: false,
 		width: 500,
 		modal: true,
 		buttons: [
 		{
 			text: "集計",
+			class: "presenterTools",
 			click: function() {
+				// アンケートの集計を表示する（同期）
 				socket.emit('count_from_client');
 			}
 		}
 		]
 	});
 
-	$('#save').click(function(evt){
+	// 保存ボタン
+	$('#save').click(function(e){
+		// 現在の状態を保存する
 		save();
-		evt.preventDefault();
-	})
-
-	$('#register').click(function(evt){
-		socket.emit('register_from_client');
-		evt.preventDefault();
+		e.preventDefault();
 	});
 
-	$('#release').click(function(evt){
+	// 解除ボタン
+	$('#release').click(function(e){
+		// 発表者としての権限を解除
 		socket.emit('release_from_client');
-		evt.preventDefault();
+		e.preventDefault();
 	});
 	</script>
 </body>
