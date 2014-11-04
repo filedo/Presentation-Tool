@@ -94,6 +94,9 @@
 				<li class="presenterTools">
 					<a href="" id="release">解除</a>
 				</li>
+				<li class="presenterTools">
+					<a href="" id="help">ヘルプ</a>
+				</li>
 			</ul>
 		</div>
 		<div id="main-contents">
@@ -108,13 +111,47 @@
 		</div>
 	</div>
 	<!-- アンケート集計時のダイアログ -->
-	<div id="canvas" title="アンケートの集計結果"></div>
+	<div id="countDialog" title="アンケートの集計結果"></div>
 
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
 		<input id="spinner" value="1">
 		<p>選択肢の数を入力して下さい。</p>
 	</div>
+
+	<!-- ヘルプ時のダイアログ -->
+	<div id="helpDialog" title="ヘルプ">
+		<table border="1" width="700" cellspacing="0" cellpadding="5" bordercolor="#333333">
+			<tr>
+				<th width="20%"><font size="2px">使用できるキー</font></th>
+				<th width="80%"><font size="2px">説明</font></th>
+			</tr>
+			<tr>
+				<td align="center" nowrap><font size="2px">←</font></td>
+				<td align="left"><font size="2px">スライドのページを一つ前に戻す</font></td>
+			</tr>
+			<tr>
+				<td align="center" nowrap><font size="2px">→</font></td>
+				<td align="left"><font size="2px">スライドのページを一つ次に進める</font></td>
+			</tr>
+			<tr>
+				<td align="center" nowrap><font size="2px">Enter</font></td>
+				<td align="left"><font size="2px">フォーム選択後に押すと、現在表示されているスライドに選択したフォームをセットする</font></td>
+			</tr>
+			<tr>
+				<td align="center" nowrap><font size="2px">d</font></td>
+				<td align="left"><font size="2px">フォーム選択後に押すと、選択したフォームを削除する</font></td>
+			</tr>
+		</table>
+		<ul>
+			<li><font size="2px">用意したスライドの画像を表示させたい時は、"スライド追加"ボタンを押して下さい。</font></li>
+			<li><font size="2px">追加したフォームは選択することにより移動、削除、セットができます。</font></li>
+			<li><font size="2px">アンケートの結果を知りたい場合は、"集計"ボタンを押して下さい。</font></li>
+			<li><font size="2px">プレゼンテーションのページを保存したい時は、"現在の状態を保存"ボタンを押して下さい。</font></li>
+			<li><font size="2px">発表者の登録を解除したい時は、"解除"ボタンを押して下さい。</font></li>
+		</ul>
+	</div>
+
 	<!-- アンケート -->
 	<form>
 		<div id="questions"></div>
@@ -225,7 +262,7 @@
 	});
 
 	// 集計ボタンのダイアログ
-	$( '#canvas' ).dialog({
+	$( '#countDialog' ).dialog({
 		autoOpen: false,
 		width: 500,
 		modal: true,
@@ -253,6 +290,26 @@
 		// 発表者としての権限を解除
 		socket.emit('release_from_client');
 		e.preventDefault();
+	});
+	$('#help').click(function(e){
+		// ヘルプダイアログを表示
+		$('#helpDialog').dialog("open");
+		e.preventDefault();
+	});
+	// ヘルプのダイアログ
+	$( '#helpDialog' ).dialog({
+		autoOpen: false,
+		width: 750,
+		height: 400,
+		modal: true,
+		buttons: [
+		{
+			text: "Ok",
+			click: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+		]
 	});
 	</script>
 </body>
