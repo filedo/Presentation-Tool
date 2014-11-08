@@ -1,8 +1,11 @@
-var app = require('http').createServer(handler),
+var app = require('http').createServer(),
 io = require('socket.io').listen(app),
 path = require('path'),
 fs = require('fs');
 app.listen(1337);
+
+// サーバにおいて起動させると以下がなくても読み込める（何故？）
+/*
 function handler(req, res) {
     // ファイルパスから拡張子を取得
     var extname = path.extname(req.url);
@@ -56,9 +59,14 @@ function handler(req, res) {
         case '.jpg':
         fs.readFile(__dirname +'/node_modules'+req.url,
                     function (err, data) {
-                        res.writeHead(200, {'Content-Type': 'image/jpg'});
-                        res.write(data);
-                        res.end();
+                        if(err){
+                            res.writeHead(500,{'Content-Type':'image/jpg'});
+                            res.write(err.toString());
+                        }else{
+                            res.writeHead(200, {'Content-Type': 'image/jpg'});
+                            res.write(data);
+                            res.end();
+                        }
                     }
                     );
         break;
@@ -66,7 +74,7 @@ function handler(req, res) {
         break;
     }
 }
-
+*/
 io.sockets.on('connection',function(socket) {
 	socket.on('emit_from_client',function(data){
 		// console.log(data);
@@ -93,27 +101,32 @@ io.sockets.on('connection',function(socket) {
        io.sockets.emit('prepage_from_server');
     });
 
-    // 全クライアントにスライドに使う画像データのファイル数を伝える
+    // 全クライアントにスライドに使う画像データのファイル数と拡張子名を伝える
     socket.on('slideload_from_client',function(){
         var dir = __dirname + '/node_modules/img/';
+        var extname = path.extname(fs.readdirSync(dir)[0]);
         fs.readdir(dir, function(err, files){
             if(err) throw err;
-           io.sockets.emit('slideload_from_server',files.length);
+            io.sockets.emit('slideload_from_server',files.length,extname);
         });
     });
-    // jsonObjの情報を現在のディレクトリにjson.txtとして保存する
+    // jsonObjの情報を現在のディレクトリにpagedata.jsonとして保存する
     socket.on('save_from_client',function(jsonObj){
-        fs.writeFile('json.txt', JSON.stringify(jsonObj));
+        fs.writeFile('pagedata.json', JSON.stringify(jsonObj));
     });
-    // ページの再読み込み時にjson.txtが存在すればそのデータを読み込み、存在しなければ作成する
+    // ページの再読み込み時にpagedata.jsonが存在すればそのデータを読み込み、存在しなければ作成する
      socket.on('reload_from_client',function(jsonObj){
-         fs.readFile('json.txt', 'utf8', function (err, data) {
+         fs.readFile('pagedata.json', 'utf8', function (err, data) {
             if(err){
-                fs.writeFile('json.txt',JSON.stringify(jsonObj));
+                fs.writeFile('pagedata.json',JSON.stringify(jsonObj));
             }else{
                 socket.emit('reload_from_server',JSON.parse(data));
             }
         });
+    });
+    // 初期化されたjsonObjを書き込み、pagedata.jsonの中身を初期化する
+    socket.on('removeAll_from_client',function(jsonObj){
+        fs.writeFile('pagedata.json',JSON.stringify(jsonObj));
     });
     // question.txtファイルを読み込み、カンマで区切ったリストに変換し、その情報からアンケートを集計する
     // answerList:['1','2','4','1'...]

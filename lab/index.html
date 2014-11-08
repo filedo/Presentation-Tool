@@ -3,30 +3,31 @@
 <head>
 	<title>参加型プレゼンツール</title>
 	<meta charset="utf-8">
-	<script src="/lib/jquery-1.11.1.min.js"></script>
-	<script src="/lib/jquery-ui.min.js"></script>
-	<script src="/lib/jMenu.jquery.min.js"></script>
-	<script src="/lib/d3.js"></script>
-	<script src="/js/nextPage.js"></script>
-	<script src="/js/prependPage.js"></script>
-	<script src="/js/keyController.js"></script>
-	<script src="/js/removeForm.js"></script>
-	<script src="/js/setForm.js"></script>
-	<script src="/js/slideLoad.js"></script>
-	<script src="/js/slideReload.js"></script>
-	<script src="/js/createQuestion.js"></script>
-	<script src="/js/createComment.js"></script>
-	<script src="/js/startUp.js"></script>
-	<script src="/js/save.js"></script>
-	<script src="/js/reload.js"></script>
-	<script src="/js/count.js"></script>
-	<script src="/js/setCookie.js"></script>
-	<script src="/js/getCookie.js"></script>
-	<script src="/js/client.js"></script>
-	<script src="/socket.io/socket.io.js"></script>
-	<link rel="stylesheet" type="text/css" href="/css/slide.css">
-	<link rel="stylesheet" type="text/css" href="/css/jquery-ui.min.css">
-	<link rel="stylesheet" type="text/css" href="/css/jmenu.css">
+	<script src="node_modules/lib/jquery-1.11.1.min.js"></script>
+	<script src="node_modules/lib/jquery-ui.min.js"></script>
+	<script src="node_modules/lib/jMenu.jquery.min.js"></script>
+	<script src="node_modules/lib/d3.js"></script>
+	<script src="node_modules/js/nextPage.js"></script>
+	<script src="node_modules/js/prependPage.js"></script>
+	<script src="node_modules/js/keyController.js"></script>
+	<script src="node_modules/js/removeForm.js"></script>
+	<script src="node_modules/js/setForm.js"></script>
+	<script src="node_modules/js/slideLoad.js"></script>
+	<script src="node_modules/js/slideReload.js"></script>
+	<script src="node_modules/js/createQuestion.js"></script>
+	<script src="node_modules/js/createComment.js"></script>
+	<script src="node_modules/js/startUp.js"></script>
+	<script src="node_modules/js/save.js"></script>
+	<script src="node_modules/js/reload.js"></script>
+	<script src="node_modules/js/count.js"></script>
+	<script src="node_modules/js/setCookie.js"></script>
+	<script src="node_modules/js/getCookie.js"></script>
+	<script src="node_modules/js/client.js"></script>
+	<script src="node_modules/js/removeAll.js"></script>
+	<script src="http://localhost:1337/socket.io/socket.io.js"></script>
+	<link rel="stylesheet" type="text/css" href="node_modules/css/slide.css">
+	<link rel="stylesheet" type="text/css" href="node_modules/css/jquery-ui.min.css">
+	<link rel="stylesheet" type="text/css" href="node_modules/css/jmenu.css">
 	<style>
 	body{
 		font: 62.5% "Trebuchet MS", sans-serif;
@@ -92,6 +93,9 @@
 					<a href="" id="save">現在の状態を保存</a>
 				</li>
 				<li class="presenterTools">
+					<a href="" id="remove">すべてを削除</a>
+				</li>
+				<li class="presenterTools">
 					<a href="" id="release">解除</a>
 				</li>
 				<li class="presenterTools">
@@ -106,7 +110,7 @@
 				<ul id="logs"></ul>
 			</div>
 			<form id="chatForm">
-				<input type="text" id="msg"> <input type="submit" value="Send">
+					<input type="text" id="msg"> <input type="submit" value="Send">
 			</form>
 		</div>
 	</div>
@@ -166,7 +170,7 @@
 
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている
-	var socket = io.connect();
+	var socket = io.connect('localhost:1337');
 	// 発表者かどうかのフラグ
 	// true:発表者 false:聴衆者
 	var presenter = false;
@@ -264,7 +268,7 @@
 	// 集計ボタンのダイアログ
 	$( '#countDialog' ).dialog({
 		autoOpen: false,
-		width: 500,
+		width: 600,
 		modal: true,
 		buttons: [
 		{
@@ -275,13 +279,23 @@
 				socket.emit('count_from_client');
 			}
 		}
-		]
+		],
+		close: function() {
+			// 集計ダイアログを閉じると、グラフが削除される
+			$('#countDialog').children().remove();
+		}
 	});
 
 	// 保存ボタン
 	$('#save').click(function(e){
 		// 現在の状態を保存する
 		save();
+		e.preventDefault();
+	});
+	// 削除ボタン
+	$('#remove').click(function(e){
+		// すべてのスライドとフォームを削除する
+		removeAll();
 		e.preventDefault();
 	});
 
@@ -291,6 +305,8 @@
 		socket.emit('release_from_client');
 		e.preventDefault();
 	});
+
+	// ヘルプボタン
 	$('#help').click(function(e){
 		// ヘルプダイアログを表示
 		$('#helpDialog').dialog("open");
