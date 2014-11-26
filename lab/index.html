@@ -7,6 +7,7 @@
 	<script src="node_modules/lib/jquery-ui.min.js"></script>
 	<script src="node_modules/lib/jMenu.jquery.min.js"></script>
 	<script src="node_modules/lib/d3.js"></script>
+	<script src="node_modules/js/index.js"></script>
 	<script src="node_modules/js/nextPage.js"></script>
 	<script src="node_modules/js/prependPage.js"></script>
 	<script src="node_modules/js/keyController.js"></script>
@@ -24,52 +25,12 @@
 	<script src="node_modules/js/getCookie.js"></script>
 	<script src="node_modules/js/client.js"></script>
 	<script src="node_modules/js/removeAll.js"></script>
-	<script src="http://localhost:1337/socket.io/socket.io.js"></script>
+	<script src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
+	<!--<script src="/socket.io/socket.io.js"></script>-->
+	<link rel="stylesheet" type="text/css" href="node_modules/css/style.css">
 	<link rel="stylesheet" type="text/css" href="node_modules/css/slide.css">
 	<link rel="stylesheet" type="text/css" href="node_modules/css/jquery-ui.min.css">
 	<link rel="stylesheet" type="text/css" href="node_modules/css/jmenu.css">
-	<style>
-	body{
-		font: 62.5% "Trebuchet MS", sans-serif;
-		/*margin: 50px;*/
-	}
-	#icons {
-		margin: 0;
-		padding: 0;
-	}
-	#icons li {
-		margin: 2px;
-		position: relative;
-		padding: 4px 0;
-		cursor: pointer;
-		float: left;
-		list-style: none;
-	}
-	#icons span.ui-icon {
-		float: left;
-		margin: 0 4px;
-	}
-	.fakewindowcontain .ui-widget-overlay {
-		position: absolute;
-	}
-	select {
-		width: 200px;
-	}
-
-	#questions {
-		font: 150% "Trebuchet MS", sans-serif;
-		letter-spacing: 2em;
-	}
-	#comments {
-		font: 150% "Trebuchet MS", sans-serif;
-	}
-	#questionDialog {
-		font: 150% "Trebuchet MS", sans-serif;
-	}
-	.presenterTools{
-		visibility:hidden;
-	}
-	</style>
 </head>
 <body onload="startUp()">
 	<div id="main">
@@ -93,10 +54,11 @@
 					<a href="" id="save">現在の状態を保存</a>
 				</li>
 				<li class="presenterTools">
-					<a href="" id="remove">すべてを削除</a>
-				</li>
-				<li class="presenterTools">
-					<a href="" id="release">解除</a>
+					<a href="" id="edit">編集</a>
+					<ul>
+						<li><a href="" id="remove">作り直す</a></li>
+						<li><a href="" id="release">発表者を交代</a></li>
+					</ul>
 				</li>
 				<li class="presenterTools">
 					<a href="" id="help">ヘルプ</a>
@@ -110,7 +72,7 @@
 				<ul id="logs"></ul>
 			</div>
 			<form id="chatForm">
-					<input type="text" id="msg"> <input type="submit" value="Send">
+					<input type="text" id="msg" placeholder="質問を送信してください"> <input type="submit" value="Send">
 			</form>
 		</div>
 	</div>
@@ -152,7 +114,7 @@
 			<li><font size="2px">追加したフォームは選択することにより移動、削除、セットができます。</font></li>
 			<li><font size="2px">アンケートの結果を知りたい場合は、"集計"ボタンを押して下さい。</font></li>
 			<li><font size="2px">プレゼンテーションのページを保存したい時は、"現在の状態を保存"ボタンを押して下さい。</font></li>
-			<li><font size="2px">発表者の登録を解除したい時は、"解除"ボタンを押して下さい。</font></li>
+			<li><font size="2px">発表者の登録を解除したい時は、"発表者の交代"ボタンを押して下さい。</font></li>
 		</ul>
 	</div>
 
@@ -165,168 +127,15 @@
 	<form>
 		<div id="comments"></div>
 	</form>
-	<!-- スクリプト -->
 	<script>
-
+	// ページアクセス時に実行される
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている
-	var socket = io.connect('localhost:1337');
+	//var socket = io.connect('http://127.0.0.1:8080');
+	var socket = io.connect('http://localhost:3000');
 	// 発表者かどうかのフラグ
 	// true:発表者 false:聴衆者
 	var presenter = false;
-
-	$(document).ready(function() {
-		$('#jMenu').jMenu({
-			openClick : false,
-			ulWidth :'150',
-			TimeBeforeOpening : 100,
-			TimeBeforeClosing : 11,
-			animatedText : false,
-			paddingLeft: 1,
-			effects : {
-				effectSpeedOpen : 150,
-				effectSpeedClose : 150,
-				effectTypeOpen : 'slide',
-				effectTypeClose : 'slide',
-				effectOpen : 'swing',
-				effectClose : 'swing'
-			}
-		});
-	});
-
-	// アンケートの選択肢の数
-	$( '#spinner' ).spinner({
-		max:9,
-		min:1
-	});
-
-	// アンケートのダイアログ
-	$( '#questionDialog' ).dialog({
-		autoOpen: false,
-		width: 300,
-		modal: true,
-		buttons: [
-		{
-			text: "Ok",
-			click: function() {
-				// left:0 top:50 の位置にアンケートフォームを作成
-				createQuestion($('#spinner').spinner("value"),0,50,false);
-				$( this ).dialog( "close" );
-			}
-		},
-		{
-			text: "Cancel",
-			click: function() {
-				$( this ).dialog( "close" );
-			}
-		}
-		]
-	});
-
-	$('#chatForm').submit(function(e){
-		socket.emit('emit_from_client',$('#msg').val());
-		// 複数の値を送る時、jsonで渡す
-		//socket.json.emit('emit_from_client',{
-		//	msg: $('#msg').val(),
-		//	name: $('#name').val()
-		//});
-		$('#msg').val('').focus();
-		e.preventDefault();
-	});
-
-	// スライド追加ボタン
-	$('#addSlide').click(function(e){
-		// サーバに格納されているスライドの画像を読み込む（同期）
-		socket.emit('slideload_from_client');
-		e.preventDefault();
-	});
-
-	// e.preventDefaultしておかないと機能追加ボタンがaタグなのでクリックするとページが更新されてしまう
-	$('#addTool').click(function(e){e.preventDefault();});
-
-	// アンケートボタン
-	$('#questionForm').click(function(e){
-		// 選択肢の数を設定するダイアログを表示
-		$('#questionDialog').dialog("open");
-		e.preventDefault();
-	});
-
-	// 感想ボタン
-	$('#commentForm').click(function(e){
-		// left:0 top:50 の位置に感想フォームを作成
-		createComment(0,50,false);
-		e.preventDefault();
-	});
-
-	// 集計ボタン
-	$('#count').click(function(e){
-		// アンケートの集計ダイアログを表示する（同期）
-		socket.emit('countDialog_from_client');
-		e.preventDefault();
-	});
-
-	// 集計ボタンのダイアログ
-	$( '#countDialog' ).dialog({
-		autoOpen: false,
-		width: 600,
-		modal: true,
-		buttons: [
-		{
-			text: "集計",
-			class: "presenterTools",
-			click: function() {
-				// アンケートの集計を表示する（同期）
-				socket.emit('count_from_client');
-			}
-		}
-		],
-		close: function() {
-			// 集計ダイアログを閉じると、グラフが削除される
-			$('#countDialog').children().remove();
-		}
-	});
-
-	// 保存ボタン
-	$('#save').click(function(e){
-		// 現在の状態を保存する
-		save();
-		e.preventDefault();
-	});
-	// 削除ボタン
-	$('#remove').click(function(e){
-		// すべてのスライドとフォームを削除する
-		removeAll();
-		e.preventDefault();
-	});
-
-	// 解除ボタン
-	$('#release').click(function(e){
-		// 発表者としての権限を解除
-		socket.emit('release_from_client');
-		e.preventDefault();
-	});
-
-	// ヘルプボタン
-	$('#help').click(function(e){
-		// ヘルプダイアログを表示
-		$('#helpDialog').dialog("open");
-		e.preventDefault();
-	});
-	// ヘルプのダイアログ
-	$( '#helpDialog' ).dialog({
-		autoOpen: false,
-		width: 750,
-		height: 400,
-		modal: true,
-		buttons: [
-		{
-			text: "Ok",
-			click: function() {
-				$( this ).dialog( "close" );
-			}
-		}
-		]
-	});
 	</script>
 </body>
 </html>

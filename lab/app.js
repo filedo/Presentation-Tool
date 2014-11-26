@@ -2,7 +2,17 @@ var app = require('http').createServer(),
 io = require('socket.io').listen(app),
 path = require('path'),
 fs = require('fs');
-app.listen(1337);
+app.listen(3000);
+
+/*var app = require('http-proxy').createServer({
+  router: {
+    'localhost': '127.0.0.1:8080'
+  }
+}),
+io = require('socket.io').listen(app),
+path = require('path'),
+fs = require('fs');
+app.listen(80);*/
 
 // サーバにおいて起動させると以下がなくても読み込める（何故？）
 /*
@@ -130,7 +140,7 @@ io.sockets.on('connection',function(socket) {
     });
     // question.txtファイルを読み込み、カンマで区切ったリストに変換し、その情報からアンケートを集計する
     // answerList:['1','2','4','1'...]
-    socket.on('count_from_client',function(){
+    socket.on('count_from_client',function(choiceNum){
         fs.readFile('question.txt','utf8',function(err,data){
             if (err){
                 // 何もしない
@@ -138,7 +148,7 @@ io.sockets.on('connection',function(socket) {
                 var answerList = data.split(',');
                 // question.txtの最後の','を削除
                 answerList.pop();
-                io.sockets.emit('count_from_server',answerList);
+                io.sockets.emit('count_from_server',answerList,choiceNum);
             }
         });
     });
@@ -168,31 +178,32 @@ io.sockets.on('connection',function(socket) {
     });
     // 発表者として登録されているかどうかを確認し、いなければ発表者として登録できる
     socket.on('register_from_client',function(){
-        fs.readFile('cookie.txt', 'utf8', function (err, data) {
+        fs.readFile('username.txt', 'utf8', function (err, data) {
             // 登録者がいない
             if(err){
                 socket.emit('register_from_server');
             }
         });
     });
-    // 入力したユーザ名をcookie.txtとして保存する
+    // 入力したユーザ名をusername.txtとして保存する
     socket.on('registered_from_client',function(id){
-        fs.writeFile('cookie.txt',id);
+        fs.writeFile('username.txt',id);
     });
     // cookieとサーバの値を比較し、発表者かどうかを認証する
     socket.on('cookie_from_client',function(id){
-        fs.readFile('cookie.txt', 'utf8', function (err, data) {
+        fs.readFile('username.txt', 'utf8', function (err, data) {
             // 発表者なら発表者特有の機能が使える
             if(id==data){
                 socket.emit('presenter_from_server');
             }
         });
     });
-    // cookie.txtを削除し、発表者としての権限を解除する
+    // username.txtを削除し、発表者としての権限を解除する
     socket.on('release_from_client',function(){
-        fs.unlink(__dirname+'/cookie.txt',function(err){
-            if (err) throw err;
-            socket.emit('release_from_server');
+        fs.unlink(__dirname+'/username.txt',function(err){
+            if (!err){
+               socket.emit('release_from_server');
+            }
         });
     });
 });
