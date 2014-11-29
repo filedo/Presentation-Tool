@@ -1,23 +1,19 @@
-var app = require('http').createServer(),
+/*var app = require('http').createServer(),
 io = require('socket.io').listen(app),
 path = require('path'),
 fs = require('fs');
-app.listen(3000);
+app.listen(3000);*/
 
-/*var app = require('http-proxy').createServer({
-  router: {
-    'localhost': '127.0.0.1:8080'
-  }
-}),
-io = require('socket.io').listen(app),
-path = require('path'),
-fs = require('fs');
-app.listen(80);*/
+var http = require("http");
+var io = require("socket.io");
+var fs = require("fs");
+var path = require('path');
 
-// サーバにおいて起動させると以下がなくても読み込める（何故？）
-/*
-function handler(req, res) {
-    // ファイルパスから拡張子を取得
+var server = http.createServer(function(req, res) {
+   /*  res.writeHead(200, {"Content-Type":"text/html"});
+     var output = fs.readFileSync("./index.html", "utf-8");
+     res.end(output);*/
+       // ファイルパスから拡張子を取得
     var extname = path.extname(req.url);
     switch(extname) {
         case '':
@@ -30,52 +26,52 @@ function handler(req, res) {
                 return res.end('Error');
             }
             res.writeHead(200, {'Content-Type': 'text/html'});
-            res.write(data);
-            res.end();
+//            res.write(data);
+            res.end(data);
         });
         break;
         case '.css':
-        fs.readFile(__dirname +'/node_modules'+req.url, 'UTF-8',
+        fs.readFile(__dirname +'/'+req.url, 'UTF-8',
                     function (err, data) {
                         res.writeHead(200, {'Content-Type': 'text/css'});
-                        res.write(data);
-                        res.end();
+            //            res.write(data);
+                        res.end(data);
                     }
                     );
         break;
         case '.js':
-        fs.readFile(__dirname +'/node_modules'+req.url, 'UTF-8',
+        fs.readFile(__dirname +'/'+req.url, 'UTF-8',
                     function (err, data) {
                         res.writeHead(200, {'Content-Type': 'text/javascript'});
-                        res.write(data);
-                        res.end();
+            //            res.write(data);
+                        res.end(data);
                     }
                     );
         break;
         case '.png':
-        fs.readFile(__dirname +'/node_modules'+req.url,
+        fs.readFile(__dirname +'/'+req.url,
                     function (err, data) {
                         if(err){
                             res.writeHead(500,{'Content-Type':'image/png'});
                             res.write(err.toString());
                         }else{
                             res.writeHead(200, {'Content-Type': 'image/png'});
-                            res.write(data);
-                            res.end();
+                //            res.write(data);
+                            res.end(data);
                         }
                     }
                     );
         break;
         case '.jpg':
-        fs.readFile(__dirname +'/node_modules'+req.url,
+        fs.readFile(__dirname +'/'+req.url,
                     function (err, data) {
                         if(err){
                             res.writeHead(500,{'Content-Type':'image/jpg'});
                             res.write(err.toString());
                         }else{
                             res.writeHead(200, {'Content-Type': 'image/jpg'});
-                            res.write(data);
-                            res.end();
+                //            res.write(data);
+                            res.end(data);
                         }
                     }
                     );
@@ -83,8 +79,11 @@ function handler(req, res) {
         default:
         break;
     }
-}
-*/
+}).listen(process.env.VMC_APP_PORT || 3000);
+
+var io = io.listen(server);
+
+
 io.sockets.on('connection',function(socket) {
 	socket.on('emit_from_client',function(data){
 		// console.log(data);

@@ -3,6 +3,10 @@
 <head>
 	<title>参加型プレゼンツール</title>
 	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="node_modules/css/style.css">
+	<link rel="stylesheet" type="text/css" href="node_modules/css/slide.css">
+	<link rel="stylesheet" type="text/css" href="node_modules/css/jquery-ui.min.css">
+	<link rel="stylesheet" type="text/css" href="node_modules/css/jmenu.css">
 	<script src="node_modules/lib/jquery-1.11.1.min.js"></script>
 	<script src="node_modules/lib/jquery-ui.min.js"></script>
 	<script src="node_modules/lib/jMenu.jquery.min.js"></script>
@@ -17,22 +21,16 @@
 	<script src="node_modules/js/slideReload.js"></script>
 	<script src="node_modules/js/createQuestion.js"></script>
 	<script src="node_modules/js/createComment.js"></script>
-	<script src="node_modules/js/startUp.js"></script>
-	<script src="node_modules/js/save.js"></script>
 	<script src="node_modules/js/reload.js"></script>
 	<script src="node_modules/js/count.js"></script>
 	<script src="node_modules/js/setCookie.js"></script>
 	<script src="node_modules/js/getCookie.js"></script>
 	<script src="node_modules/js/client.js"></script>
 	<script src="node_modules/js/removeAll.js"></script>
-	<script src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>
-	<!--<script src="/socket.io/socket.io.js"></script>-->
-	<link rel="stylesheet" type="text/css" href="node_modules/css/style.css">
-	<link rel="stylesheet" type="text/css" href="node_modules/css/slide.css">
-	<link rel="stylesheet" type="text/css" href="node_modules/css/jquery-ui.min.css">
-	<link rel="stylesheet" type="text/css" href="node_modules/css/jmenu.css">
+	<!--<script src="node_modules/socket.io/node_modules/socket.io-client/socket.io.js"></script>-->
+	<script src="/socket.io/socket.io.js"></script>
 </head>
-<body onload="startUp()">
+<body>
 	<div id="main">
 		<div id="menu">
 			<!-- メニュー（jMenuを採用） -->
@@ -81,8 +79,7 @@
 
 	<!-- アンケート機能追加時のダイアログ -->
 	<div id="questionDialog" title="アンケート機能の追加">
-		<input id="spinner" value="1">
-		<p>選択肢の数を入力して下さい。</p>
+		<input id="spinner" value="1"> <p>選択肢の数を入力して下さい。</p>
 	</div>
 
 	<!-- ヘルプ時のダイアログ -->
@@ -115,6 +112,7 @@
 			<li><font size="2px">アンケートの結果を知りたい場合は、"集計"ボタンを押して下さい。</font></li>
 			<li><font size="2px">プレゼンテーションのページを保存したい時は、"現在の状態を保存"ボタンを押して下さい。</font></li>
 			<li><font size="2px">発表者の登録を解除したい時は、"発表者の交代"ボタンを押して下さい。</font></li>
+			<li><font size="2px">新たにプレゼンテーションのページを作り直したい時は、"作り直す"ボタンを押してください。</font></li>
 		</ul>
 	</div>
 
@@ -132,7 +130,7 @@
 	// emit: イベントを発信している
 	// on: イベントを待ち受けている
 	//var socket = io.connect('http://127.0.0.1:8080');
-	var socket = io.connect('http://localhost:3000');
+	var socket = io.connect();
 	// 発表者かどうかのフラグ
 	// true:発表者 false:聴衆者
 	var presenter = false;
