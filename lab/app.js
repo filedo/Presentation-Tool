@@ -10,10 +10,7 @@ var fs = require("fs");
 var path = require('path');
 
 var server = http.createServer(function(req, res) {
-   /*  res.writeHead(200, {"Content-Type":"text/html"});
-     var output = fs.readFileSync("./index.html", "utf-8");
-     res.end(output);*/
-       // ファイルパスから拡張子を取得
+    // ファイルパスから拡張子を取得
     var extname = path.extname(req.url);
     switch(extname) {
         case '':
