@@ -1,0 +1,103 @@
+extends layout
+
+block content
+	#main
+		#menu
+
+			ul#jMenu
+				li.presenterTools
+					a#addSlide(href='') スライド追加
+				li.presenterTools
+					a#addTool(href='') 機能追加
+					ul
+						li
+							a#questionForm(href='') アンケート
+						li
+							a#commentForm(href='') 感想
+				li.presenterTools
+					a#count(href='') 集計
+				li.presenterTools
+					a#download(href='data/comment.txt') 感想一覧
+				li
+					a#loaded(href='') スライド一覧
+				li.presenterTools
+					a#save(href='') 現在の状態を保存
+				li.presenterTools
+					a#edit(href='') 編集
+					ul
+						li
+							a#remove(href='') 作り直す
+						li
+							a#release(href='') 発表者を交代
+				li.presenterTools
+					a#help(href='') ヘルプ
+		#main-contents
+
+			figure#slide
+				img#slideimg.step(src='', zindex='')
+			#chatArea
+				ul#logs
+			form#chatForm
+				input#msg(type='text', placeholder='質問を送信してください')
+				input(type='submit', value='Send')
+
+		#countDialog(title='アンケートの集計結果')
+
+		#questionDialog(title='アンケート機能の追加')
+			input#spinner(value='1')
+			p 選択肢の数を入力して下さい。
+
+		#helpDialog(title='ヘルプ')
+			table(border='1', width='700', cellspacing='0', cellpadding='5', bordercolor='#333333')
+				tr
+					th(width='20%')
+						font(size='2px') 使用できるキー
+					th(width='80%')
+						font(size='2px') 説明
+				tr
+					td(align='center', nowrap='nowrap')
+						font(size='2px') ←
+					td(align='left')
+						font(size='2px') スライドのページを一つ前に戻す
+				tr
+					td(align='center', nowrap='nowrap')
+						font(size='2px') →
+					td(align='left')
+						font(size='2px') スライドのページを一つ次に進める
+				tr
+					td(align='center', nowrap='nowrap')
+						font(size='2px') Enter
+					td(align='left')
+						font(size='2px') フォーム選択後に押すと、現在表示されているスライドに選択したフォームをセットする
+				tr
+					td(align='center', nowrap='nowrap')
+						font(size='2px') d
+					td(align='left')
+						font(size='2px') フォーム選択後に押すと、選択したフォームを削除する
+			ul
+				li
+					font(size='2px') "スライド追加"ボタンを押すと、用意したスライドの画像がページ上に表示されます。
+				li
+					font(size='2px') "集計"ボタンを押すと、聴衆から集めたアンケートの結果が棒グラフで表示されます。
+				li
+					font(size='2px') "感想一覧"ボタンを押すと、聴衆から集めた感想の内容を見ることができます。
+				li
+					font(size='2px') "スライド一覧"ボタンを押すと、スライドの最初のページから現在表示されているスライドのページまでの一覧を見ることができます。
+				li
+					font(size='2px') "現在の状態を保存"ボタンを押すと、追加した画像や機能の状態が保存され、次回アクセス時に自動的にその状態が復元されます。
+				li
+					font(size='2px') "発表者の交代"ボタンを押すと、発表者の登録が解除されます。
+				li
+					font(size='2px') "作り直す"ボタンを押すと、追加した画像や機能が一旦すべて削除され、ページが初期状態に戻ります。
+				li
+					font(size='2px') 追加したフォームは選択することにより移動、削除、セットができます。
+
+		form
+			#questions
+
+		form
+			#comments
+		script.
+			var socket;
+			var presenter = false;
+

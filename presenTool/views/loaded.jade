@@ -1,0 +1,17 @@
+extends layout2
+block content
+  #gallery
+  script(type='text/javascript').
+    $(document).ready(function() {
+      if(getCookie('loadedSlide') != ''){
+        var filename = getCookie('loadedSlide');
+        var reg=/(.*)(?:\.([^.]+$))/;
+        for(var i = filename.match(reg)[1]; i > 0; i--){
+          var img = $('<img>').attr({
+            class:'loaded',
+            src:'../img/'+String(i)+'.'+filename.match(reg)[2]
+          });
+          $('#gallery').prepend(img);
+        }
+      }
+    });
